@@ -1,19 +1,44 @@
 {% extends 'base.html' %}
 {% block title %}Meu Perfil{% endblock %}
 {% block content %}
-<h2>Meu Perfil</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Salvar</button>
-</form>
+<div class="page-shell">
+    <div class="profile-layout">
+        <div class="profile-card">
+            <h2>Meu Perfil</h2>
 
-<h3 class="mt-5">Meus Itens</h3>
-<ul class="list-group">
-    {% for item in itens %}
-        <li class="list-group-item">{{ item.titulo }} — {{ item.get_status_display }}</li>
-    {% empty %}
-        <li class="list-group-item">Você ainda não cadastrou nenhum item.</li>
-    {% endfor %}
-</ul>
+            <div class="avatar-picker">
+                <div class="avatar-preview">
+                    {% if user.foto_perfil %}
+                        <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil de {{ user.username }}">
+                    {% else %}
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+                    {% endif %}
+                </div>
+                <span class="avatar-meta">Reputação média: {{ user.reputacao_media }}</span>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="styled-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </form>
+        </div>
+
+        <div class="items-card">
+            <h3>Meus Itens</h3>
+            {% if itens %}
+                <div class="items-grid">
+                    {% for item in itens %}
+                        <div class="item-card">
+                            <h4>{{ item.titulo }}</h4>
+                            <span class="item-status">{{ item.get_status_display }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="items-empty">Você ainda não cadastrou nenhum item.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

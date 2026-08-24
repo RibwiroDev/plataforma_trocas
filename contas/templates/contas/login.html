@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% block title %}Entrar{% endblock %}
 {% block content %}
-<h2>Entrar</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Entrar</button>
-</form>
-<p class="mt-3">Ainda não tem conta? <a href="{% url 'cadastro' %}">Cadastre-se</a></p>
+<div class="page-shell center-vertical">
+    <div class="auth-card">
+        <h2>Entrar</h2>
+        <p class="subtitle">Acesse sua conta para ver seus itens e propostas de troca.</p>
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+        <p class="switch-link">Ainda não tem conta? <a href="{% url 'cadastro' %}">Cadastre-se</a></p>
+    </div>
+</div>
 {% endblock %}

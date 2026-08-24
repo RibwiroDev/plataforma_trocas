@@ -1,0 +1,408 @@
+/* ============================================================
+   Plataforma de Trocas — identidade visual
+   Conceito: o produto é sobre CICLO — dar e receber, não comprar.
+   A paleta e o ícone da marca (setas em loop) carregam essa ideia.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Paleta */
+  --color-bg: #F5F6F1;
+  --color-surface: #FFFFFF;
+  --color-ink: #1E2B24;
+  --color-ink-soft: #4B5A52;
+  --color-primary: #2F6F5E;
+  --color-primary-dark: #234F42;
+  --color-accent: #D9A441;
+  --color-danger: #B4483A;
+  --color-border: #DCD7C8;
+
+  /* Tipografia */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Escala */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow-card: 0 1px 2px rgba(30, 43, 36, 0.06), 0 12px 32px -16px rgba(30, 43, 36, 0.18);
+  --transition: 160ms ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Navbar ---------- */
+
+.navbar.app-navbar {
+  background: var(--color-ink) !important;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 3px solid var(--color-accent);
+}
+
+.app-navbar .navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #F5F6F1 !important;
+}
+
+.brand-icon {
+  color: var(--color-accent);
+  transition: transform 420ms ease;
+}
+
+.app-navbar .navbar-brand:hover .brand-icon {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-navbar .navbar-brand:hover .brand-icon {
+    transform: none;
+  }
+}
+
+.app-navbar .btn-outline-light {
+  border-color: rgba(245, 246, 241, 0.35);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.app-navbar .btn-outline-light:hover {
+  background: rgba(245, 246, 241, 0.12);
+  border-color: var(--color-accent);
+}
+
+.app-navbar .btn-light {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.app-navbar .btn-light:hover {
+  background: #c99436;
+  border-color: #c99436;
+}
+
+/* ---------- Layout de página ---------- */
+
+.page-shell {
+  min-height: calc(100vh - 90px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+.page-shell.center-vertical {
+  align-items: center;
+}
+
+/* ---------- Cards de autenticação (login / cadastro) ---------- */
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 2.25rem 2rem;
+}
+
+.auth-card h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.auth-card .subtitle {
+  color: var(--color-ink-soft);
+  font-size: 0.95rem;
+  margin-bottom: 1.75rem;
+}
+
+.auth-card .switch-link {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-ink-soft);
+}
+
+/* ---------- Cartão de perfil ---------- */
+
+.profile-layout {
+  width: 100%;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.75rem;
+}
+
+@media (min-width: 860px) {
+  .profile-layout {
+    grid-template-columns: 380px minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.profile-card,
+.items-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 2rem;
+}
+
+.profile-card h2,
+.items-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ---------- Avatar ---------- */
+
+.avatar-picker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.avatar-preview {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  color: var(--color-ink-soft);
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-meta {
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+}
+
+/* ---------- Formulários (funciona direto em cima de {{ form.as_p }}) ---------- */
+
+form.styled-form p {
+  margin-bottom: 1.15rem;
+}
+
+form.styled-form label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+form.styled-form input[type="text"],
+form.styled-form input[type="email"],
+form.styled-form input[type="password"],
+form.styled-form input[type="tel"],
+form.styled-form select {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  color: var(--color-ink);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+form.styled-form input[type="text"]:focus,
+form.styled-form input[type="email"]:focus,
+form.styled-form input[type="password"]:focus,
+form.styled-form input[type="tel"]:focus,
+form.styled-form select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.15);
+  outline: none;
+}
+
+form.styled-form input[type="file"] {
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+}
+
+form.styled-form .helptext {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-ink-soft);
+  margin-top: 0.3rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+form.styled-form ul.errorlist {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  color: var(--color-danger);
+  font-size: 0.82rem;
+}
+
+/* Campo de senha com botão de mostrar/ocultar (montado via JS) */
+.password-field {
+  position: relative;
+}
+
+.password-field input[type="password"],
+.password-field input[type="text"] {
+  padding-right: 2.75rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0.3rem;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.password-toggle:hover {
+  color: var(--color-primary);
+}
+
+/* ---------- Botões ---------- */
+
+.btn-primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  font-weight: 600;
+  padding: 0.6rem 1.4rem;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.btn-primary .spinner {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  margin-right: 0.5em;
+  vertical-align: -0.15em;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary .spinner {
+    animation-duration: 1400ms;
+  }
+}
+
+/* ---------- Meus itens ---------- */
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.9rem;
+}
+
+.item-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  background: var(--color-bg);
+}
+
+.item-card h4 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.98rem;
+  margin: 0 0 0.4rem;
+}
+
+.item-status {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(47, 111, 94, 0.12);
+  color: var(--color-primary-dark);
+}
+
+.items-empty {
+  color: var(--color-ink-soft);
+  font-size: 0.92rem;
+  padding: 1rem 0;
+}
