@@ -13,4 +13,3 @@ staticfiles/
 .vscode/
 .DS_Store
 Thumbs.db
-requirements.txt
