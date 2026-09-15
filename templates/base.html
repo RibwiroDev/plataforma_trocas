@@ -18,24 +18,43 @@
                 </svg>
                 SWAP
             </a>
-            <div>
-                {% if user.is_authenticated %}
-                    <span class="text-light me-3">Olá, {{ user.username }}</span>
-                    <a href="{% url 'perfil' %}" class="btn btn-outline-light btn-sm me-2">Meu Perfil</a>
-                    <form method="post" action="{% url 'logout' %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-light btn-sm">Sair</button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm me-2">Entrar</a>
-                    <a href="{% url 'cadastro' %}" class="btn btn-light btn-sm">Cadastrar</a>
-                {% endif %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarConteudo" aria-controls="navbarConteudo" aria-expanded="false" aria-label="Alternar navegação">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarConteudo">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'lista_itens' %}">Itens</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'criar_item' %}">Publicar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'propostas_recebidas' %}">Recebidas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'minhas_propostas' %}">Enviadas</a></li>
+                    {% endif %}
+                </ul>
+                <div class="d-flex align-items-lg-center gap-2 flex-wrap">
+                    {% if user.is_authenticated %}
+                        <span class="text-light me-lg-2">Olá, {{ user.username }}</span>
+                        <a href="{% url 'perfil' %}" class="btn btn-outline-light btn-sm">Meu Perfil</a>
+                        <form method="post" action="{% url 'logout' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-light btn-sm">Sair</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Entrar</a>
+                        <a href="{% url 'cadastro' %}" class="btn btn-light btn-sm">Cadastrar</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
     <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="app-alert app-alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
         {% block content %}{% endblock %}
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

@@ -37,6 +37,10 @@ class Item(models.Model):
     def __str__(self):
         return self.titulo
 
+    @property
+    def imagem_principal(self):
+        return self.imagens.filter(principal=True).first() or self.imagens.first()
+
 
 class ItemImagem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='imagens')

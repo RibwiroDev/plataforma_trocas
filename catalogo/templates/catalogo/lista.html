@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Itens disponíveis{% endblock %}
+{% block content %}
+<div class="catalog-header">
+    <h2>Itens disponíveis</h2>
+    {% if user.is_authenticated %}
+        <a href="{% url 'criar_item' %}" class="btn btn-primary">Publicar item</a>
+    {% endif %}
+</div>
+
+<div class="filter-bar">
+    <a href="{% url 'lista_itens' %}" class="filter-chip{% if not categoria_selecionada %} active{% endif %}">Todas</a>
+    {% for categoria in categorias %}
+        <a href="?categoria={{ categoria.id }}" class="filter-chip{% if categoria_selecionada == categoria.id|stringformat:'s' %} active{% endif %}">{{ categoria.nome }}</a>
+    {% endfor %}
+</div>
+
+{% if page_obj.object_list %}
+<div class="catalog-grid">
+    {% for item in page_obj %}
+        <a href="{% url 'detalhe_item' item.pk %}" class="catalog-card">
+            <div class="catalog-card-image">
+                {% if item.imagem_principal %}
+                    <img src="{{ item.imagem_principal.imagem.url }}" alt="{{ item.titulo }}">
+                {% else %}
+                    <div class="catalog-card-placeholder">Sem foto</div>
+                {% endif %}
+            </div>
+            <div class="catalog-card-body">
+                <h4>{{ item.titulo }}</h4>
+                <span class="item-status">{{ item.get_estado_conservacao_display }}</span>
+                <p class="catalog-card-meta">{{ item.categoria.nome|default:"Sem categoria" }} · {{ item.dono.username }}</p>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="pagination-nav">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}">Anterior</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}">Próxima</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<p class="items-empty">Nenhum item disponível{% if categoria_selecionada %} nessa categoria{% endif %} no momento.</p>
+{% endif %}
+{% endblock %}

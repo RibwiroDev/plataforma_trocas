@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Minhas propostas{% endblock %}
+{% block content %}
+<h2>Minhas propostas</h2>
+{% if propostas %}
+<div class="proposal-list">
+    {% for proposta in propostas %}
+    <div class="proposal-card">
+        <div class="proposal-info">
+            <p>Você propôs <strong>{{ proposta.item_ofertado.titulo }}</strong> por <strong>{{ proposta.item_desejado.titulo }}</strong></p>
+            <p class="proposal-detail">Dono: {{ proposta.item_desejado.dono.username }}</p>
+            <span class="item-status">{{ proposta.get_status_display }}</span>
+        </div>
+        {% if proposta.status == 'pendente' %}
+        <div class="proposal-actions">
+            <form method="post" action="{% url 'cancelar_proposta' proposta.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="items-empty">Você ainda não propôs nenhuma troca.</p>
+{% endif %}
+{% endblock %}

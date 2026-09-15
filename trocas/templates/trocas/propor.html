@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Propor troca{% endblock %}
+{% block content %}
+<div class="page-shell center-vertical">
+    <div class="auth-card">
+        <h2>Propor troca</h2>
+        <p class="subtitle">Você quer o item <strong>{{ item.titulo }}</strong>, de {{ item.dono.username }}.</p>
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Enviar proposta</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

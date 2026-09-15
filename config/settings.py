@@ -170,5 +170,5 @@ MAILERS = {
 }
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'perfil'
+LOGIN_REDIRECT_URL = 'lista_itens'
 LOGOUT_REDIRECT_URL = 'login'

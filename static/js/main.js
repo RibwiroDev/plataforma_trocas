@@ -2,7 +2,23 @@ document.addEventListener('DOMContentLoaded', function () {
   addPasswordToggles();
   addAvatarPreview();
   addSubmitLoadingState();
+  addGalleryThumbs();
 });
+
+/* ---------- 4. Galeria de fotos do item (clicar na miniatura troca a foto principal) ---------- */
+function addGalleryThumbs() {
+  var mainImage = document.getElementById('imagem-principal');
+  var thumbs = document.querySelectorAll('.item-detail-thumbs .thumb');
+  if (!mainImage || !thumbs.length) return;
+
+  thumbs.forEach(function (thumb) {
+    thumb.addEventListener('click', function () {
+      mainImage.src = thumb.dataset.full;
+      thumbs.forEach(function (t) { t.classList.remove('active'); });
+      thumb.classList.add('active');
+    });
+  });
+}
 
 /* ---------- 1. Mostrar/ocultar senha ---------- */
 function addPasswordToggles() {

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo_pagina }}{% endblock %}
+{% block content %}
+<div class="page-shell">
+    <div class="profile-card" style="max-width: 640px; width: 100%;">
+        <h2>{{ titulo_pagina }}</h2>
+        <form method="post" enctype="multipart/form-data" class="styled-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+
+        {% if item and item.imagens.all %}
+        <div class="existing-images">
+            <h4>Fotos atuais</h4>
+            <div class="existing-images-grid">
+                {% for imagem in item.imagens.all %}
+                    <div class="existing-image{% if imagem.principal %} is-principal{% endif %}">
+                        <img src="{{ imagem.imagem.url }}" alt="Foto de {{ item.titulo }}">
+                        {% if imagem.principal %}<span class="badge-principal">Principal</span>{% endif %}
+                        <div class="existing-image-actions">
+                            {% if not imagem.principal %}
+                            <form method="post" action="{% url 'definir_imagem_principal' imagem.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-link-sm">Tornar principal</button>
+                            </form>
+                            {% endif %}
+                            <form method="post" action="{% url 'remover_imagem' imagem.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-link-sm btn-link-danger">Remover</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

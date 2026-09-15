@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Propostas recebidas{% endblock %}
+{% block content %}
+<h2>Propostas recebidas</h2>
+{% if propostas %}
+<div class="proposal-list">
+    {% for proposta in propostas %}
+    <div class="proposal-card">
+        <div class="proposal-info">
+            <p><strong>{{ proposta.proponente.username }}</strong> quer seu item <strong>{{ proposta.item_desejado.titulo }}</strong></p>
+            <p class="proposal-detail">Oferece: {{ proposta.item_ofertado.titulo }}</p>
+            {% if proposta.mensagem %}<p class="proposal-detail">"{{ proposta.mensagem }}"</p>{% endif %}
+            <span class="item-status">{{ proposta.get_status_display }}</span>
+        </div>
+        {% if proposta.status == 'pendente' %}
+        <div class="proposal-actions">
+            <form method="post" action="{% url 'aceitar_proposta' proposta.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-sm">Aceitar</button>
+            </form>
+            <form method="post" action="{% url 'recusar_proposta' proposta.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm">Recusar</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="items-empty">Você ainda não recebeu nenhuma proposta.</p>
+{% endif %}
+{% endblock %}

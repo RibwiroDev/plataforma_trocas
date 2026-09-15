@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Excluir item{% endblock %}
+{% block content %}
+<div class="page-shell center-vertical">
+    <div class="auth-card">
+        <h2>Excluir "{{ item.titulo }}"?</h2>
+        <p class="subtitle">Essa ação não pode ser desfeita. O item e suas fotos serão removidos permanentemente.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger">Sim, excluir</button>
+            <a href="{% url 'detalhe_item' item.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
