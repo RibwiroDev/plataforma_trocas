@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
   addAvatarPreview();
   addSubmitLoadingState();
   addGalleryThumbs();
+  initChat();
 });
 
 /* ---------- 4. Galeria de fotos do item (clicar na miniatura troca a foto principal) ---------- */
@@ -94,4 +95,75 @@ function addSubmitLoadingState() {
       button.innerHTML = '<span class="spinner" aria-hidden="true"></span>Enviando…';
     });
   });
+}
+
+/* ---------- 5. Chat: envia sem recarregar e busca mensagens novas periodicamente ---------- */
+function initChat() {
+  var janela = document.getElementById('chat-window');
+  var form = document.getElementById('chat-form');
+  if (!janela || !form) return;
+
+  var urlNovas = janela.dataset.conversaUrl;
+  var ultimaId = parseInt(janela.dataset.ultimaId, 10) || 0;
+
+  janela.scrollTop = janela.scrollHeight;
+
+  function criarBolha(msg) {
+    var bolha = document.createElement('div');
+    bolha.className = 'chat-bubble ' + (msg.eh_minha ? 'chat-bubble-mine' : 'chat-bubble-theirs');
+    bolha.dataset.id = msg.id;
+
+    var p = document.createElement('p');
+    p.textContent = msg.texto;
+    bolha.appendChild(p);
+
+    var hora = document.createElement('span');
+    hora.className = 'chat-bubble-time';
+    hora.textContent = msg.criado_em;
+    bolha.appendChild(hora);
+
+    return bolha;
+  }
+
+  function buscarNovas() {
+    fetch(urlNovas + '?desde=' + ultimaId)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var vazio = janela.querySelector('.items-empty');
+        data.mensagens.forEach(function (msg) {
+          if (vazio) { vazio.remove(); vazio = null; }
+          janela.appendChild(criarBolha(msg));
+          ultimaId = msg.id;
+        });
+        if (data.mensagens.length) {
+          janela.scrollTop = janela.scrollHeight;
+        }
+      })
+      .catch(function () { /* silencioso: tenta de novo no próximo ciclo */ });
+  }
+
+  form.addEventListener('submit', function (evento) {
+    evento.preventDefault();
+    var dados = new FormData(form);
+    var textarea = form.querySelector('textarea');
+    var textoOriginal = textarea.value;
+    if (!textoOriginal.trim()) return;
+
+    textarea.disabled = true;
+    fetch(form.action || window.location.href, {
+      method: 'POST',
+      body: dados,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+      .then(function () {
+        textarea.value = '';
+        buscarNovas();
+      })
+      .finally(function () {
+        textarea.disabled = false;
+        textarea.focus();
+      });
+  });
+
+  setInterval(buscarNovas, 4000);
 }

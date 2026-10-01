@@ -877,3 +877,92 @@ form.styled-form ul.errorlist {
   color: var(--color-ink-soft);
   font-size: 0.9rem;
 }
+
+/* ---------- Chat (Épico 5) ---------- */
+
+.chat-badge {
+  display: inline-block;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  margin-left: 0.3rem;
+  vertical-align: middle;
+}
+
+.chat-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.chat-header {
+  margin-bottom: 1rem;
+}
+
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  height: 420px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+}
+
+.chat-bubble p {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-bubble-time {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--color-ink-soft);
+  margin-top: 0.25rem;
+}
+
+.chat-bubble-mine {
+  align-self: flex-end;
+  background: rgba(47, 111, 94, 0.14);
+  border: 1px solid rgba(47, 111, 94, 0.25);
+}
+
+.chat-bubble-theirs {
+  align-self: flex-start;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+}
+
+.chat-form {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+}
+
+.chat-form textarea {
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  resize: none;
+}
+
+.chat-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.15);
+}

@@ -11,6 +11,10 @@
             <p class="proposal-detail">Oferece: {{ proposta.item_ofertado.titulo }}</p>
             {% if proposta.mensagem %}<p class="proposal-detail">"{{ proposta.mensagem }}"</p>{% endif %}
             <span class="item-status">{{ proposta.get_status_display }}</span>
+            <p class="proposal-detail">
+                <a href="{% url 'conversa' proposta.pk %}">💬 Conversar</a>
+                {% if proposta.nao_lidas %}<span class="chat-badge">{{ proposta.nao_lidas }}</span>{% endif %}
+            </p>
         </div>
         {% if proposta.status == 'pendente' %}
         <div class="proposal-actions">

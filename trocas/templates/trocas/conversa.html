@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Conversa{% endblock %}
+{% block content %}
+<div class="chat-page">
+    <div class="chat-header">
+        <h2>Conversa com {{ outro_usuario.username }}</h2>
+        <p class="subtitle">{{ proposta.item_desejado.titulo }} ↔ {{ proposta.item_ofertado.titulo }}</p>
+    </div>
+
+    <div class="chat-window" id="chat-window" data-conversa-url="{% url 'mensagens_novas' proposta.pk %}" data-ultima-id="{{ ultima_mensagem_id }}">
+        {% for mensagem in mensagens %}
+            <div class="chat-bubble {% if mensagem.remetente_id == request.user.id %}chat-bubble-mine{% else %}chat-bubble-theirs{% endif %}" data-id="{{ mensagem.pk }}">
+                <p>{{ mensagem.texto }}</p>
+                <span class="chat-bubble-time">{{ mensagem.criado_em|date:"d/m H:i" }}</span>
+            </div>
+        {% empty %}
+            <p class="items-empty">Nenhuma mensagem ainda. Diga oi!</p>
+        {% endfor %}
+    </div>
+
+    <form method="post" class="chat-form" id="chat-form">
+        {% csrf_token %}
+        {{ form.texto }}
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+</div>
+{% endblock %}

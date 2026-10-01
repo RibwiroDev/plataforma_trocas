@@ -1,12 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Count, Exists, OuterRef, Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from catalogo.models import Item
-from .forms import AvaliacaoForm, PropostaForm
-from .models import Avaliacao, Proposta
+from .forms import AvaliacaoForm, MensagemForm, PropostaForm
+from .models import Avaliacao, Mensagem, Proposta
 
 
 @login_required
@@ -49,7 +50,10 @@ def propostas_recebidas(request):
     propostas = Proposta.objects.filter(
         item_desejado__dono=request.user
     ).select_related('item_desejado', 'item_ofertado', 'proponente').annotate(
-        ja_avaliado=Exists(avaliacao_existente)
+        ja_avaliado=Exists(avaliacao_existente),
+        nao_lidas=Count(
+            'mensagens', filter=Q(mensagens__lida=False) & ~Q(mensagens__remetente=request.user), distinct=True
+        ),
     )
     return render(request, 'trocas/recebidas.html', {'propostas': propostas})
 
@@ -60,7 +64,10 @@ def minhas_propostas(request):
     propostas = Proposta.objects.filter(
         proponente=request.user
     ).select_related('item_desejado', 'item_ofertado', 'item_desejado__dono').annotate(
-        ja_avaliado=Exists(avaliacao_existente)
+        ja_avaliado=Exists(avaliacao_existente),
+        nao_lidas=Count(
+            'mensagens', filter=Q(mensagens__lida=False) & ~Q(mensagens__remetente=request.user), distinct=True
+        ),
     )
     return render(request, 'trocas/enviadas.html', {'propostas': propostas})
 
@@ -167,3 +174,59 @@ def _recalcular_reputacao(usuario):
     media = usuario.avaliacoes_recebidas.aggregate(media=Avg('nota'))['media'] or 0
     usuario.reputacao_media = round(media, 2)
     usuario.save(update_fields=['reputacao_media'])
+
+
+def _participante_da_proposta(request, pk):
+    return get_object_or_404(
+        Proposta.objects.select_related('item_desejado__dono', 'proponente', 'item_ofertado'),
+        Q(pk=pk),
+        Q(item_desejado__dono=request.user) | Q(proponente=request.user),
+    )
+
+
+@login_required
+def conversa(request, pk):
+    proposta = _participante_da_proposta(request, pk)
+
+    if request.method == 'POST':
+        form = MensagemForm(request.POST)
+        if form.is_valid():
+            Mensagem.objects.create(proposta=proposta, remetente=request.user, texto=form.cleaned_data['texto'])
+            return redirect('conversa', pk=proposta.pk)
+    else:
+        form = MensagemForm()
+
+    mensagens = list(proposta.mensagens.select_related('remetente'))
+    proposta.mensagens.filter(lida=False).exclude(remetente=request.user).update(lida=True)
+
+    dono = proposta.item_desejado.dono
+    outro_usuario = proposta.proponente if request.user.id == dono.id else dono
+
+    return render(request, 'trocas/conversa.html', {
+        'proposta': proposta,
+        'mensagens': mensagens,
+        'form': form,
+        'outro_usuario': outro_usuario,
+        'ultima_mensagem_id': mensagens[-1].pk if mensagens else 0,
+    })
+
+
+@login_required
+def mensagens_novas(request, pk):
+    proposta = _participante_da_proposta(request, pk)
+    desde_id = request.GET.get('desde') or 0
+
+    novas = proposta.mensagens.filter(pk__gt=desde_id).select_related('remetente')
+    novas.filter(lida=False).exclude(remetente=request.user).update(lida=True)
+
+    dados = [
+        {
+            'id': m.pk,
+            'texto': m.texto,
+            'remetente': m.remetente.username,
+            'eh_minha': m.remetente_id == request.user.id,
+            'criado_em': m.criado_em.strftime('%d/%m %H:%M'),
+        }
+        for m in novas
+    ]
+    return JsonResponse({'mensagens': dados})
