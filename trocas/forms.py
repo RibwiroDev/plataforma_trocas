@@ -1,6 +1,6 @@
 from django import forms
 from catalogo.models import Item
-from .models import Proposta
+from .models import Avaliacao, Proposta
 
 
 class PropostaForm(forms.ModelForm):
@@ -14,3 +14,13 @@ class PropostaForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if usuario is not None:
             self.fields['item_ofertado'].queryset = Item.objects.filter(dono=usuario, status=Item.Status.DISPONIVEL)
+
+
+class AvaliacaoForm(forms.ModelForm):
+    class Meta:
+        model = Avaliacao
+        fields = ['nota', 'comentario']
+        widgets = {
+            'comentario': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Como foi a troca? (opcional)'}),
+        }
+        labels = {'nota': 'Nota (1 a 5)'}

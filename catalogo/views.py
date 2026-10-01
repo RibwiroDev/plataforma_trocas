@@ -8,7 +8,9 @@ from .models import Categoria, Item, ItemImagem
 
 
 def lista_itens(request):
-    itens = Item.objects.filter(status=Item.Status.DISPONIVEL).select_related('categoria', 'dono').order_by('-criado_em')
+    itens = Item.objects.filter(
+        status__in=[Item.Status.DISPONIVEL, Item.Status.EM_NEGOCIACAO]
+    ).select_related('categoria', 'dono').order_by('-criado_em')
 
     categoria_id = request.GET.get('categoria')
     if categoria_id:

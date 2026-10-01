@@ -798,3 +798,82 @@ form.styled-form ul.errorlist {
   display: flex;
   gap: 0.6rem;
 }
+
+/* ---------- Selos de status (Em negociação / Trocado) ---------- */
+
+.item-status.status-negociacao {
+  background: rgba(217, 164, 65, 0.18);
+  color: #8a6624;
+}
+
+.item-status.status-trocado {
+  background: rgba(30, 43, 36, 0.08);
+  color: var(--color-ink-soft);
+}
+
+/* ---------- Reputação e avaliações (Épico 4) ---------- */
+
+.reputation-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 1.25rem 0 1.75rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.reputation-score {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.reputation-score::after {
+  content: ' / 5';
+  font-size: 1rem;
+  color: var(--color-ink-soft);
+  font-family: var(--font-body);
+}
+
+.reputation-count {
+  color: var(--color-ink-soft);
+  font-size: 0.88rem;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.review-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1.1rem;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.review-nota {
+  font-weight: 700;
+  color: var(--color-accent);
+  background: rgba(217, 164, 65, 0.15);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+}
+
+.review-card p {
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: 0.9rem;
+}

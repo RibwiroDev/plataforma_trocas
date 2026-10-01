@@ -8,4 +8,5 @@ urlpatterns = [
     path('propostas/<int:pk>/aceitar/', views.aceitar_proposta, name='aceitar_proposta'),
     path('propostas/<int:pk>/recusar/', views.recusar_proposta, name='recusar_proposta'),
     path('propostas/<int:pk>/cancelar/', views.cancelar_proposta, name='cancelar_proposta'),
+    path('propostas/<int:pk>/avaliar/', views.avaliar_troca, name='avaliar_troca'),
 ]

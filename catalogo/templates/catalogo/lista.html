@@ -29,6 +29,9 @@
             <div class="catalog-card-body">
                 <h4>{{ item.titulo }}</h4>
                 <span class="item-status">{{ item.get_estado_conservacao_display }}</span>
+                {% if item.status == 'em_negociacao' %}
+                    <span class="item-status status-negociacao">Em negociação</span>
+                {% endif %}
                 <p class="catalog-card-meta">{{ item.categoria.nome|default:"Sem categoria" }} · {{ item.dono.username }}</p>
             </div>
         </a>

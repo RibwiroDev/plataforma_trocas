@@ -1,7 +1,8 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from .forms import CadastroForm, PerfilForm
+from .models import Usuario
 
 
 def cadastro(request):
@@ -28,3 +29,11 @@ def perfil(request):
 
     itens = request.user.itens.all()
     return render(request, 'contas/perfil.html', {'form': form, 'itens': itens})
+
+def perfil_publico(request, username):
+    perfil_usuario = get_object_or_404(Usuario, username=username)
+    avaliacoes = perfil_usuario.avaliacoes_recebidas.select_related('avaliador').all()
+    return render(request, 'contas/perfil_publico.html', {
+        'perfil_usuario': perfil_usuario,
+        'avaliacoes': avaliacoes,
+    })

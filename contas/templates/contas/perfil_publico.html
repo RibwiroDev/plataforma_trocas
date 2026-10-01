@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}{{ perfil_usuario.username }}{% endblock %}
+{% block content %}
+<div class="page-shell">
+    <div class="profile-card" style="max-width: 680px; width: 100%;">
+        <div class="avatar-picker">
+            <div class="avatar-preview">
+                {% if perfil_usuario.foto_perfil %}
+                    <img src="{{ perfil_usuario.foto_perfil.url }}" alt="Foto de {{ perfil_usuario.username }}">
+                {% else %}
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+                {% endif %}
+            </div>
+            <div>
+                <h2 style="margin: 0;">{{ perfil_usuario.username }}</h2>
+                {% if perfil_usuario.cidade or perfil_usuario.estado %}
+                    <span class="avatar-meta">{{ perfil_usuario.cidade }}{% if perfil_usuario.cidade and perfil_usuario.estado %}, {% endif %}{{ perfil_usuario.estado }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="reputation-summary">
+            <span class="reputation-score">{{ perfil_usuario.reputacao_media }}</span>
+            <span class="reputation-count">({{ avaliacoes.count }} avaliaç{{ avaliacoes.count|pluralize:"ão,ões" }})</span>
+        </div>
+
+        <h3>Avaliações recebidas</h3>
+        {% if avaliacoes %}
+            <div class="review-list">
+                {% for av in avaliacoes %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <strong>{{ av.avaliador.username }}</strong>
+                            <span class="review-nota">{{ av.nota }}/5</span>
+                        </div>
+                        {% if av.comentario %}<p>{{ av.comentario }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="items-empty">Ainda não recebeu avaliações.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

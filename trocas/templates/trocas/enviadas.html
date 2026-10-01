@@ -18,6 +18,14 @@
                 <button type="submit" class="btn btn-outline-secondary btn-sm">Cancelar</button>
             </form>
         </div>
+        {% elif proposta.status == 'aceita' %}
+        <div class="proposal-actions">
+            {% if proposta.ja_avaliado %}
+                <span class="proposal-detail">Você já avaliou essa troca</span>
+            {% else %}
+                <a href="{% url 'avaliar_troca' proposta.pk %}" class="btn btn-outline-secondary btn-sm">Avaliar</a>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
     {% endfor %}

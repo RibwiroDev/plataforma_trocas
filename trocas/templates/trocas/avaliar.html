@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Avaliar troca{% endblock %}
+{% block content %}
+<div class="page-shell center-vertical">
+    <div class="auth-card">
+        <h2>Avaliar troca com {{ avaliado.username }}</h2>
+        <p class="subtitle">{{ proposta.item_desejado.titulo }} ↔ {{ proposta.item_ofertado.titulo }}</p>
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Enviar avaliação</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
