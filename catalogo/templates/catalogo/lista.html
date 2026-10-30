@@ -20,11 +20,11 @@
     {% for item in page_obj %}
         <a href="{% url 'detalhe_item' item.pk %}" class="catalog-card">
             <div class="catalog-card-image">
-                {% if item.imagem_principal %}
-                    <img src="{{ item.imagem_principal.imagem.url }}" alt="{{ item.titulo }}">
+                {% with imagem=item.imagem_principal %}{% if imagem %}
+                    <img src="{{ imagem.imagem.url }}" alt="{{ item.titulo }}" loading="lazy">
                 {% else %}
                     <div class="catalog-card-placeholder">Sem foto</div>
-                {% endif %}
+                {% endif %}{% endwith %}
             </div>
             <div class="catalog-card-body">
                 <h4>{{ item.titulo }}</h4>

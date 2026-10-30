@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Count, Exists, OuterRef, Q
+from django.db.models import Avg, Count, Exists, OuterRef, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -82,14 +82,18 @@ def aceitar_proposta(request, pk):
             proposta.status = Proposta.Status.ACEITA
             proposta.save()
 
-            Item.objects.filter(pk__in=[proposta.item_desejado_id, proposta.item_ofertado_id]).update(
-                status=Item.Status.TROCADO
-            )
+            itens_da_troca = {proposta.item_desejado_id, proposta.item_ofertado_id}
+            Item.objects.filter(pk__in=itens_da_troca).update(status=Item.Status.TROCADO)
 
-            Proposta.objects.filter(status=Proposta.Status.PENDENTE).filter(
-                Q(item_desejado_id__in=[proposta.item_desejado_id, proposta.item_ofertado_id]) |
-                Q(item_ofertado_id__in=[proposta.item_desejado_id, proposta.item_ofertado_id])
-            ).exclude(pk=proposta.pk).update(status=Proposta.Status.RECUSADA)
+            conflitantes = Proposta.objects.filter(status=Proposta.Status.PENDENTE).filter(
+                Q(item_desejado_id__in=itens_da_troca) | Q(item_ofertado_id__in=itens_da_troca)
+            ).exclude(pk=proposta.pk)
+            outros_desejados = set(conflitantes.values_list('item_desejado_id', flat=True)) - itens_da_troca
+            conflitantes.update(status=Proposta.Status.RECUSADA)
+
+            # itens que estavam em negociação só por causa das propostas recusadas voltam a ficar livres
+            for outro in Item.objects.filter(pk__in=outros_desejados):
+                outro.liberar_se_sem_propostas()
 
         messages.success(request, 'Proposta aceita! Os dois itens foram marcados como trocados.')
     return redirect('propostas_recebidas')
@@ -104,7 +108,7 @@ def recusar_proposta(request, pk):
         with transaction.atomic():
             proposta.status = Proposta.Status.RECUSADA
             proposta.save()
-            _revalidar_status_item(proposta.item_desejado)
+            proposta.item_desejado.liberar_se_sem_propostas()
         messages.info(request, 'Proposta recusada.')
     return redirect('propostas_recebidas')
 
@@ -118,7 +122,7 @@ def cancelar_proposta(request, pk):
         with transaction.atomic():
             proposta.status = Proposta.Status.CANCELADA
             proposta.save()
-            _revalidar_status_item(proposta.item_desejado)
+            proposta.item_desejado.liberar_se_sem_propostas()
         messages.info(request, 'Proposta cancelada.')
     return redirect('minhas_propostas')
 
@@ -159,18 +163,7 @@ def avaliar_troca(request, pk):
     return render(request, 'trocas/avaliar.html', {'form': form, 'proposta': proposta, 'avaliado': avaliado})
 
 
-def _revalidar_status_item(item):
-    """Volta o item pra 'disponivel' se não sobrou nenhuma proposta pendente pra ele."""
-    if item.status != Item.Status.EM_NEGOCIACAO:
-        return
-    ainda_tem_pendente = item.propostas_recebidas.filter(status=Proposta.Status.PENDENTE).exists()
-    if not ainda_tem_pendente:
-        item.status = Item.Status.DISPONIVEL
-        item.save(update_fields=['status'])
-
-
 def _recalcular_reputacao(usuario):
-    from django.db.models import Avg
     media = usuario.avaliacoes_recebidas.aggregate(media=Avg('nota'))['media'] or 0
     usuario.reputacao_media = round(media, 2)
     usuario.save(update_fields=['reputacao_media'])
@@ -214,7 +207,10 @@ def conversa(request, pk):
 @login_required
 def mensagens_novas(request, pk):
     proposta = _participante_da_proposta(request, pk)
-    desde_id = request.GET.get('desde') or 0
+    try:
+        desde_id = int(request.GET.get('desde', 0))
+    except ValueError:
+        desde_id = 0
 
     novas = proposta.mensagens.filter(pk__gt=desde_id).select_related('remetente')
     novas.filter(lida=False).exclude(remetente=request.user).update(lida=True)

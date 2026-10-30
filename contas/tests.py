@@ -1,3 +1,84 @@
 from django.test import TestCase
+from django.urls import reverse
 
-# Create your tests here.
+from .models import Usuario
+
+
+class CadastroTests(TestCase):
+    def test_cadastro_cria_usuario_e_loga_automaticamente(self):
+        response = self.client.post(reverse('cadastro'), {
+            'username': 'novato',
+            'email': 'novato@teste.com',
+            'password1': 'SenhaForte123!',
+            'password2': 'SenhaForte123!',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Usuario.objects.filter(username='novato').exists())
+        # já loga automaticamente após o cadastro
+        response = self.client.get(reverse('perfil'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_cadastro_bloqueia_email_duplicado(self):
+        Usuario.objects.create_user(username='existente', email='mesmo@teste.com', password='Senha123!')
+        response = self.client.post(reverse('cadastro'), {
+            'username': 'outrouser',
+            'email': 'mesmo@teste.com',
+            'password1': 'SenhaForte123!',
+            'password2': 'SenhaForte123!',
+        })
+        self.assertEqual(response.status_code, 200)  # form volta com erro, não redireciona
+        self.assertFalse(Usuario.objects.filter(username='outrouser').exists())
+
+
+class LoginLogoutTests(TestCase):
+    def setUp(self):
+        self.usuario = Usuario.objects.create_user(username='maria', password='SenhaForte123!')
+
+    def test_login_com_credenciais_corretas(self):
+        response = self.client.post(reverse('login'), {'username': 'maria', 'password': 'SenhaForte123!'})
+        self.assertEqual(response.status_code, 302)
+
+    def test_login_com_senha_errada_nao_autentica(self):
+        response = self.client.post(reverse('login'), {'username': 'maria', 'password': 'errada'})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+
+    def test_logout_so_aceita_post(self):
+        self.client.login(username='maria', password='SenhaForte123!')
+        response = self.client.get(reverse('logout'))
+        self.assertEqual(response.status_code, 405)
+
+    def test_logout_via_post_funciona(self):
+        self.client.login(username='maria', password='SenhaForte123!')
+        response = self.client.post(reverse('logout'))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+
+
+class PerfilTests(TestCase):
+    def test_perfil_exige_login(self):
+        response = self.client.get(reverse('perfil'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response.url)
+
+    def test_perfil_acessivel_quando_logado(self):
+        Usuario.objects.create_user(username='ana', password='Senha123!')
+        self.client.login(username='ana', password='Senha123!')
+        response = self.client.get(reverse('perfil'))
+        self.assertEqual(response.status_code, 200)
+
+
+class PerfilPublicoTests(TestCase):
+    def test_perfil_publico_nao_exige_login(self):
+        Usuario.objects.create_user(username='bruno', password='Senha123!')
+        response = self.client.get(reverse('perfil_publico', args=['bruno']))
+        self.assertEqual(response.status_code, 200)
+
+    def test_perfil_publico_de_usuario_inexistente_da_404(self):
+        response = self.client.get(reverse('perfil_publico', args=['nao-existe']))
+        self.assertEqual(response.status_code, 404)
+
+    def test_perfil_publico_mostra_reputacao_zerada_por_padrao(self):
+        Usuario.objects.create_user(username='carla', password='Senha123!')
+        response = self.client.get(reverse('perfil_publico', args=['carla']))
+        self.assertContains(response, 'Ainda não recebeu avaliações')

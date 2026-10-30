@@ -3,20 +3,20 @@
 {% block content %}
 <div class="item-detail">
     <div class="item-detail-gallery">
-        {% if item.imagens.all %}
+        {% with imagens=item.imagens.all principal=item.imagem_principal %}{% if imagens %}
             <div class="item-detail-main-image">
-                <img src="{{ item.imagem_principal.imagem.url }}" alt="{{ item.titulo }}" id="imagem-principal">
+                <img src="{{ principal.imagem.url }}" alt="{{ item.titulo }}" id="imagem-principal">
             </div>
-            {% if item.imagens.count > 1 %}
+            {% if imagens|length > 1 %}
             <div class="item-detail-thumbs">
-                {% for imagem in item.imagens.all %}
+                {% for imagem in imagens %}
                     <img src="{{ imagem.imagem.url }}" alt="Foto de {{ item.titulo }}" class="thumb{% if imagem.principal %} active{% endif %}" data-full="{{ imagem.imagem.url }}">
                 {% endfor %}
             </div>
             {% endif %}
         {% else %}
             <div class="item-detail-main-image item-detail-no-image">Sem fotos</div>
-        {% endif %}
+        {% endif %}{% endwith %}
     </div>
 
     <div class="item-detail-info">

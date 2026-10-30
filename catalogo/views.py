@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ItemForm
@@ -10,11 +11,13 @@ from .models import Categoria, Item, ItemImagem
 def lista_itens(request):
     itens = Item.objects.filter(
         status__in=[Item.Status.DISPONIVEL, Item.Status.EM_NEGOCIACAO]
-    ).select_related('categoria', 'dono').order_by('-criado_em')
+    ).select_related('categoria', 'dono').prefetch_related('imagens').order_by('-criado_em')
 
-    categoria_id = request.GET.get('categoria')
-    if categoria_id:
+    categoria_id = request.GET.get('categoria', '')
+    if categoria_id.isdecimal():
         itens = itens.filter(categoria_id=categoria_id)
+    else:
+        categoria_id = None
 
     paginator = Paginator(itens, 12)
     page_obj = paginator.get_page(request.GET.get('page'))
@@ -27,7 +30,7 @@ def lista_itens(request):
 
 
 def detalhe_item(request, pk):
-    item = get_object_or_404(Item.objects.select_related('categoria', 'dono', 'aceita_categoria'), pk=pk)
+    item = get_object_or_404(Item.objects.select_related('categoria', 'dono', 'aceita_categoria').prefetch_related('imagens'), pk=pk)
     eh_dono = request.user.is_authenticated and item.dono_id == request.user.id
     return render(request, 'catalogo/detalhe.html', {'item': item, 'eh_dono': eh_dono})
 
@@ -67,7 +70,13 @@ def editar_item(request, pk):
 def excluir_item(request, pk):
     item = get_object_or_404(Item, pk=pk, dono=request.user)
     if request.method == 'POST':
-        item.delete()
+        with transaction.atomic():
+            disputados = list(Item.objects.filter(
+                propostas_recebidas__item_ofertado=item, propostas_recebidas__status='pendente'
+            ).distinct())
+            item.delete()
+            for outro in disputados:
+                outro.liberar_se_sem_propostas()
         messages.success(request, 'Item excluído.')
         return redirect('lista_itens')
     return render(request, 'catalogo/confirmar_exclusao.html', {'item': item})

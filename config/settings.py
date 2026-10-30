@@ -58,7 +58,6 @@ LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Manaus'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 STORAGES = {
     'default': {
@@ -118,9 +117,9 @@ DATABASES = {
         'PORT': config('DB_PORT'),
         'OPTIONS': {
             'charset': 'utf8mb4',
-            'ssl': {
-                'ca': str(BASE_DIR / 'ca.pem'),
-            },
+            # O SSL só é exigido quando o arquivo ca.pem existe (caso da Aiven).
+            # Em um MySQL/MariaDB local, sem ca.pem, a conexão funciona normalmente.
+            **({'ssl': {'ca': str(BASE_DIR / 'ca.pem')}} if (BASE_DIR / 'ca.pem').exists() else {}),
         },
     }
 }
@@ -163,11 +162,6 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'lista_itens'

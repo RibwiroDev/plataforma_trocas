@@ -39,7 +39,16 @@ class Item(models.Model):
 
     @property
     def imagem_principal(self):
-        return self.imagens.filter(principal=True).first() or self.imagens.first()
+        imagens = sorted(self.imagens.all(), key=lambda i: i.pk)  # .all() reaproveita o prefetch
+        return next((i for i in imagens if i.principal), imagens[0] if imagens else None)
+
+    def liberar_se_sem_propostas(self):
+        """Volta para 'disponivel' se nenhuma proposta pendente restou para este item."""
+        if self.status != self.Status.EM_NEGOCIACAO:
+            return
+        if not self.propostas_recebidas.filter(status='pendente').exists():
+            self.status = self.Status.DISPONIVEL
+            self.save(update_fields=['status'])
 
 
 class ItemImagem(models.Model):
