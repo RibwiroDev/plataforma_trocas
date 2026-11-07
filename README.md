@@ -104,3 +104,9 @@ script_banco.sql   DDL completo (16 tabelas) + dados iniciais
 16 tabelas: 4 do domínio principal (`contas_usuario`, `catalogo_categoria`, `catalogo_item`,
 `catalogo_itemimagem`), 3 do fluxo de troca (`trocas_proposta`, `trocas_avaliacao`,
 `trocas_mensagem`) e as demais, internas do Django (autenticação, sessões, admin).
+
+## Publicação na Vercel (opcional)
+
+1. Ligue o banco no Aiven (Power on) e importe o repositório em vercel.com/new.
+2. Em *Settings → Environment Variables*, cadastre as mesmas variáveis do `.env` e mais `DB_SSL_CA` com o conteúdo do `ca.pem` do Aiven (não envie o `ca.pem` ao GitHub).
+3. A Vercel instala o `requirements.txt` (no Linux usa PyMySQL), roda o `collectstatic` e publica. As tabelas já devem existir no banco (`migrate` ou `script_banco.sql`).

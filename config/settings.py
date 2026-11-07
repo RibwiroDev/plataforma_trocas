@@ -10,8 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
+import tempfile
 from pathlib import Path
 from decouple import config
+
+# Na Vercel o driver C do MySQL (mysqlclient) não compila; o PyMySQL, puro Python, faz o mesmo papel.
+try:
+    import MySQLdb  # noqa: F401
+except ImportError:
+    import pymysql
+    pymysql.version_info = (2, 2, 1, 'final', 0)  # faz o Django aceitar o PyMySQL como mysqlclient
+    pymysql.install_as_MySQLdb()
+
+NA_VERCEL = bool(os.environ.get('VERCEL'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,12 +36,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=not NA_VERCEL, cast=bool)  # local: True; na Vercel: False
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=lambda v: [s.strip() for s in v.split(',') if s.strip()])
+if NA_VERCEL:
+    ALLOWED_HOSTS.append('.vercel.app')
+    CSRF_TRUSTED_ORIGINS.append('https://*.vercel.app')
 
 # Ativar apenas quando DEBUG=False (produção com HTTPS)
 if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # atrás do proxy da Vercel/Render
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -107,6 +124,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+# Certificado do Aiven: arquivo ca.pem (local) ou texto na variável DB_SSL_CA (Vercel, onde não há ca.pem no repositório).
+CA_PEM = BASE_DIR / 'ca.pem'
+DB_SSL_CA = config('DB_SSL_CA', default='')
+if DB_SSL_CA:
+    CA_PEM = Path(tempfile.gettempdir()) / 'ca.pem'
+    CA_PEM.write_text(DB_SSL_CA.replace('\\n', '\n'))
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -119,7 +143,7 @@ DATABASES = {
             'charset': 'utf8mb4',
             # O SSL só é exigido quando o arquivo ca.pem existe (caso da Aiven).
             # Em um MySQL/MariaDB local, sem ca.pem, a conexão funciona normalmente.
-            **({'ssl': {'ca': str(BASE_DIR / 'ca.pem')}} if (BASE_DIR / 'ca.pem').exists() else {}),
+            **({'ssl': {'ca': str(CA_PEM)}} if CA_PEM.exists() else {}),
         },
     }
 }
@@ -156,6 +180,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # a Vercel roda collectstatic nesta pasta
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 
