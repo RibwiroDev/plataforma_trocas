@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Notificações{% endblock %}
+{% block content %}
+<div class="catalog-header">
+    <h1>Notificações</h1>
+    <form method="post" action="{% url 'marcar_avisos' %}">
+        {% csrf_token %}
+        <button class="swap-account" type="submit">Limpar novos avisos</button>
+    </form>
+</div>
+<section class="swap-alert-section">
+    <h2>Mensagens não lidas</h2>
+    {% for conversa in conversas %}
+        <a class="swap-conversation" href="{% url 'conversa' conversa.pk %}">
+            <span>{{ conversa.item_desejado.titulo_publico }}</span>
+            <span class="swap-unread">{{ conversa.nao_lidas }}</span>
+        </a>
+    {% empty %}<p>Nenhuma mensagem não lida.</p>{% endfor %}
+</section>
+<section class="swap-alert-section">
+    <h2>Propostas recentes</h2>
+    {% for proposta in propostas %}
+        <a class="swap-conversation" href="{% url 'propostas_recebidas' %}">
+            <span>{{ proposta.proponente.username }} enviou uma proposta para {{ proposta.item_desejado.titulo_publico }}</span>
+            <small>{{ proposta.get_status_display }}</small>
+        </a>
+    {% empty %}<p>Nenhuma proposta recebida nos últimos sete dias.</p>{% endfor %}
+</section>
+<section class="swap-alert-section">
+    <h2>Novos anúncios por perto</h2>
+    {% if user.estado and user.cidade %}
+        <p>{{ user.cidade }} · {{ user.estado }}</p>
+        {% for item in proximos %}
+            <a class="swap-conversation" href="{% url 'detalhe_item' item.pk %}">{{ item.titulo }}</a>
+        {% empty %}<p>Nenhum anúncio disponível na sua cidade nos últimos sete dias.</p>{% endfor %}
+    {% else %}
+        <p><a href="{% url 'perfil' %}">Informe sua cidade e seu estado no perfil</a> para ver anúncios por perto.</p>
+    {% endif %}
+</section>
+{% endblock %}
