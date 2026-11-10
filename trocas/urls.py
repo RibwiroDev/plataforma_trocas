@@ -1,7 +1,11 @@
 from django.urls import path
-from . import views
+from . import notificacoes, views
 
 urlpatterns = [
+    path('mensagens/', notificacoes.caixa_mensagens, name='caixa_mensagens'),
+    path('notificacoes/', notificacoes.central_avisos, name='central_avisos'),
+    path('notificacoes/resumo/', notificacoes.resumo_avisos, name='resumo_avisos'),
+    path('notificacoes/vistas/', notificacoes.marcar_avisos, name='marcar_avisos'),
     path('itens/<int:item_pk>/propor/', views.propor_troca, name='propor_troca'),
     path('propostas/recebidas/', views.propostas_recebidas, name='propostas_recebidas'),
     path('propostas/enviadas/', views.minhas_propostas, name='minhas_propostas'),
