@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Administração de anúncios{% endblock %}
+{% block content %}
+<h1>Administração de anúncios</h1>
+<nav class="swap-switch" aria-label="Estado da moderação">
+    {% for valor, rotulo in estados %}
+        <a href="?estado={{ valor }}"{% if valor == estado %} aria-current="page"{% endif %}>{{ rotulo }}</a>
+    {% endfor %}
+</nav>
+<div class="proposal-list">
+    {% for item in pagina %}
+        <article class="proposal-card">
+            <div class="proposal-info w-100">
+                <h2 class="h5"><a href="{% url 'detalhe_item' item.pk %}">{{ item.titulo }}</a></h2>
+                <p>Publicado por {{ item.dono.username }} · {{ item.categoria|default:"Sem categoria" }}</p>
+                <p>{{ item.get_moderacao_display }}</p>
+                <div>{{ item.descricao|linebreaks }}</div>
+                {% if item.motivo_moderacao %}<p>Motivo da reprovação · {{ item.motivo_moderacao }}</p>{% endif %}
+                <div class="existing-images-grid my-3">
+                    {% for foto in item.imagens.all %}
+                        <a href="{% url 'foto_item' foto.pk %}" class="existing-image">
+                            <img src="{% url 'foto_item' foto.pk %}" alt="Foto {{ forloop.counter }} de {{ item.titulo }}" loading="lazy">
+                        </a>
+                    {% empty %}
+                        <p>Sem fotos.</p>
+                    {% endfor %}
+                </div>
+                {% if estado == 'pendente' %}
+                    <form method="post" action="{% url 'decidir_moderacao' item.pk %}" class="mb-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="revisao" value="{{ item.revisao_moderacao }}">
+                        <button class="btn btn-primary" name="decisao" value="aprovado">Aprovar anúncio</button>
+                    </form>
+                    <form method="post" action="{% url 'decidir_moderacao' item.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="revisao" value="{{ item.revisao_moderacao }}">
+                        <label for="motivo-{{ item.pk }}" class="form-label">Motivo para reprovar</label>
+                        <textarea id="motivo-{{ item.pk }}" name="motivo" class="form-control mb-2" rows="2" required maxlength="500"></textarea>
+                        <button class="btn btn-outline-danger" name="decisao" value="reprovado">Reprovar anúncio</button>
+                    </form>
+                {% endif %}
+            </div>
+        </article>
+    {% empty %}
+        <p>Nenhum anúncio neste estado.</p>
+    {% endfor %}
+</div>
+{% if pagina.has_other_pages %}
+<nav class="swap-switch mt-3" aria-label="Páginas da fila">
+    {% if pagina.has_previous %}<a href="?estado={{ estado }}&amp;page={{ pagina.previous_page_number }}">Anterior</a>{% endif %}
+    <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+    {% if pagina.has_next %}<a href="?estado={{ estado }}&amp;page={{ pagina.next_page_number }}">Próxima</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

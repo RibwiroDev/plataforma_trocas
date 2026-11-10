@@ -4,7 +4,7 @@
 <div class="page-shell center-vertical">
     <div class="auth-card">
         <h2>Avaliar troca com {{ avaliado.username }}</h2>
-        <p class="subtitle">{{ proposta.item_desejado.titulo }} ↔ {{ proposta.item_ofertado.titulo }}</p>
+        <p class="subtitle">{{ proposta.item_desejado.titulo_publico }} ↔ {{ proposta.item_ofertado.titulo_publico }}</p>
         <form method="post" class="styled-form">
             {% csrf_token %}
             {{ form.as_p }}

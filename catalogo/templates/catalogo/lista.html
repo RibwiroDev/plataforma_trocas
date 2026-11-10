@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% block title %}Itens disponíveis{% endblock %}
 {% block content %}
+{% if not categoria_selecionada %}
+<section class="swap-hero">
+    <span class="swap-kicker">TROCAS ENTRE PESSOAS</span>
+    <h1>Explore o que você pode trocar</h1>
+    <p>Encontre um item e ofereça algo seu em troca.</p>
+</section>
+{% endif %}
 <div class="catalog-header">
     <h2>Itens disponíveis</h2>
     {% if user.is_authenticated %}
@@ -8,10 +15,24 @@
     {% endif %}
 </div>
 
+<form class="swap-region" action="{% url 'lista_itens' %}" method="get" role="search" aria-label="Filtrar região">
+    {% if categoria_selecionada %}<input type="hidden" name="categoria" value="{{ categoria_selecionada }}">{% endif %}
+    <div>
+        <label for="filtro-estado">Onde você quer buscar?</label>
+        <select id="filtro-estado" name="estado">
+            <option value="">Todo o Brasil</option>
+            {% for sigla, estado in estados.items %}
+                <option value="{{ sigla }}"{% if estado_selecionado == sigla %} selected{% endif %}>{{ estado.nome }} ({{ sigla }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+</form>
+
 <div class="filter-bar">
-    <a href="{% url 'lista_itens' %}" class="filter-chip{% if not categoria_selecionada %} active{% endif %}">Todas</a>
+    <a href="{% url 'lista_itens' %}{% if estado_selecionado %}?estado={{ estado_selecionado }}{% endif %}" class="filter-chip{% if not categoria_selecionada %} active{% endif %}">Todas</a>
     {% for categoria in categorias %}
-        <a href="?categoria={{ categoria.id }}" class="filter-chip{% if categoria_selecionada == categoria.id|stringformat:'s' %} active{% endif %}">{{ categoria.nome }}</a>
+        <a href="?categoria={{ categoria.id }}{% if estado_selecionado %}&amp;estado={{ estado_selecionado }}{% endif %}" class="filter-chip{% if categoria_selecionada == categoria.id|stringformat:'s' %} active{% endif %}">{{ categoria.nome }}</a>
     {% endfor %}
 </div>
 
@@ -21,7 +42,7 @@
         <a href="{% url 'detalhe_item' item.pk %}" class="catalog-card">
             <div class="catalog-card-image">
                 {% with imagem=item.imagem_principal %}{% if imagem %}
-                    <img src="{{ imagem.imagem.url }}" alt="{{ item.titulo }}" loading="lazy">
+                    <img src="{% url 'foto_item' imagem.pk %}" alt="{{ item.titulo }}" loading="lazy" decoding="async">
                 {% else %}
                     <div class="catalog-card-placeholder">Sem foto</div>
                 {% endif %}{% endwith %}
@@ -32,7 +53,7 @@
                 {% if item.status == 'em_negociacao' %}
                     <span class="item-status status-negociacao">Em negociação</span>
                 {% endif %}
-                <p class="catalog-card-meta">{{ item.categoria.nome|default:"Sem categoria" }} · {{ item.dono.username }}</p>
+                <p class="catalog-card-meta">{{ item.categoria.nome|default:"Sem categoria" }} · {{ item.dono.username }}{% if item.estado %} · {{ item.cidade }}/{{ item.estado }}{% endif %}</p>
             </div>
         </a>
     {% endfor %}
@@ -42,16 +63,29 @@
 <nav class="pagination-nav">
     <ul class="pagination">
         {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}">Anterior</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if categoria_selecionada %}&amp;categoria={{ categoria_selecionada }}{% endif %}{% if estado_selecionado %}&amp;estado={{ estado_selecionado }}{% endif %}">Anterior</a></li>
         {% endif %}
         <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
         {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}">Próxima</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if categoria_selecionada %}&amp;categoria={{ categoria_selecionada }}{% endif %}{% if estado_selecionado %}&amp;estado={{ estado_selecionado }}{% endif %}">Próxima</a></li>
         {% endif %}
     </ul>
 </nav>
 {% endif %}
 {% else %}
-<p class="items-empty">Nenhum item disponível{% if categoria_selecionada %} nessa categoria{% endif %} no momento.</p>
+<section class="swap-empty">
+    <span class="swap-mark" aria-hidden="true">⇄</span>
+    <h3>Nenhum item disponível</h3>
+    {% if estado_selecionado %}
+        <p>Nenhum anúncio encontrado nessa região.</p>
+        <a href="{% url 'lista_itens' %}">Buscar em todo o Brasil</a>
+    {% elif categoria_selecionada %}
+        <a href="{% url 'lista_itens' %}">Ver todas as categorias</a>
+    {% elif user.is_authenticated %}
+        <p>Publique um item para iniciar uma troca.</p>
+    {% else %}
+        <p>Os anúncios de troca aparecerão aqui.</p>
+    {% endif %}
+</section>
 {% endif %}
 {% endblock %}

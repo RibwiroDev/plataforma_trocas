@@ -1,16 +1,19 @@
 {% extends 'base.html' %}
 {% block title %}{{ item.titulo }}{% endblock %}
 {% block content %}
+{% if item.moderacao != 'aprovado' %}
+<div class="alert alert-warning">{{ item.get_moderacao_display }}{% if item.motivo_moderacao %} · {{ item.motivo_moderacao }}{% endif %}</div>
+{% endif %}
 <div class="item-detail">
     <div class="item-detail-gallery">
         {% with imagens=item.imagens.all principal=item.imagem_principal %}{% if imagens %}
             <div class="item-detail-main-image">
-                <img src="{{ principal.imagem.url }}" alt="{{ item.titulo }}" id="imagem-principal">
+                <img src="{% url 'foto_item' principal.pk %}" alt="{{ item.titulo }}" id="imagem-principal">
             </div>
             {% if imagens|length > 1 %}
             <div class="item-detail-thumbs">
                 {% for imagem in imagens %}
-                    <img src="{{ imagem.imagem.url }}" alt="Foto de {{ item.titulo }}" class="thumb{% if imagem.principal %} active{% endif %}" data-full="{{ imagem.imagem.url }}">
+                    <img src="{% url 'foto_item' imagem.pk %}" alt="Foto de {{ item.titulo }}" class="thumb{% if imagem.principal %} active{% endif %}" data-full="{% url 'foto_item' imagem.pk %}">
                 {% endfor %}
             </div>
             {% endif %}
@@ -23,6 +26,7 @@
         <span class="item-status{% if item.status == 'em_negociacao' %} status-negociacao{% elif item.status == 'trocado' %} status-trocado{% endif %}">{{ item.get_status_display }}</span>
         <h2>{{ item.titulo }}</h2>
         <p class="item-detail-meta">{{ item.categoria.nome|default:"Sem categoria" }} · {{ item.get_estado_conservacao_display }} · publicado por <a href="{% url 'perfil_publico' item.dono.username %}">{{ item.dono.username }}</a> ({{ item.dono.reputacao_media }}/5)</p>
+        {% if item.estado %}<p class="item-detail-meta">Local do anúncio · {{ item.cidade }}, {{ item.estado }}</p>{% endif %}
         <div class="item-detail-descricao">{{ item.descricao|linebreaks }}</div>
 
         <div class="item-detail-aceita">
@@ -38,6 +42,9 @@
         {% if eh_dono %}
             <div class="item-detail-actions">
                 <a href="{% url 'editar_item' item.pk %}" class="btn btn-outline-secondary">Editar</a>
+                {% if item.imagem_principal %}
+                    <a href="{% url 'editar_item' item.pk %}#fotos-enviadas" class="btn btn-outline-secondary swap-manage-photos">Gerenciar fotos</a>
+                {% endif %}
                 <a href="{% url 'excluir_item' item.pk %}" class="btn btn-outline-danger">Excluir</a>
             </div>
         {% elif item.status == 'disponivel' or item.status == 'em_negociacao' %}

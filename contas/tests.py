@@ -82,3 +82,43 @@ class PerfilPublicoTests(TestCase):
         Usuario.objects.create_user(username='carla', password='Senha123!')
         response = self.client.get(reverse('perfil_publico', args=['carla']))
         self.assertContains(response, 'Ainda não recebeu avaliações')
+
+class LocalidadeTests(TestCase):
+    def test_cadastro_exibe_listas_e_carrega_script(self):
+        response = self.client.get(reverse('cadastro'))
+        self.assertContains(response, 'data-localidades=')
+        self.assertContains(response, 'contas/localidades.js')
+        self.assertContains(response, '<option value="AM">Amazonas</option>', html=True)
+
+    def test_cadastro_salva_municipio_da_uf(self):
+        response = self.client.post(reverse('cadastro'), {
+            'username': 'localidade', 'email': 'localidade@example.test',
+            'password1': 'SenhaForte123!', 'password2': 'SenhaForte123!',
+            'estado': 'AM', 'cidade': 'Manaus',
+        })
+        self.assertRedirects(response, reverse('perfil'))
+        self.assertTrue(Usuario.objects.filter(username='localidade', estado='AM', cidade='Manaus').exists())
+
+    def test_perfil_rejeita_cidade_inventada_ou_de_outra_uf(self):
+        usuario = Usuario.objects.create_user(username='moradora', estado='AM', cidade='Manaus')
+        self.client.force_login(usuario)
+        for cidade in ('Cidade Inventada', 'Belém'):
+            with self.subTest(cidade=cidade):
+                response = self.client.post(reverse('perfil'), {
+                    'username': usuario.username, 'estado': 'AM', 'cidade': cidade,
+                })
+                self.assertFormError(response.context['form'], 'cidade', 'Selecione um município do estado informado.')
+                usuario.refresh_from_db()
+                self.assertEqual(usuario.cidade, 'Manaus')
+
+    def test_perfil_preserva_localidade_antiga_e_aceita_correcao(self):
+        usuario = Usuario.objects.create_user(username='morador', estado='AM', cidade='Manáus')
+        self.client.force_login(usuario)
+        self.assertContains(self.client.get(reverse('perfil')), 'Manáus')
+        for cidade in ('Manáus', 'Manaus'):
+            response = self.client.post(reverse('perfil'), {
+                'username': usuario.username, 'estado': 'AM', 'cidade': cidade,
+            })
+            self.assertRedirects(response, reverse('perfil'))
+            usuario.refresh_from_db()
+            self.assertEqual(usuario.cidade, cidade)

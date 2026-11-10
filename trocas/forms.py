@@ -17,7 +17,7 @@ class PropostaForm(forms.ModelForm):
     def __init__(self, *args, usuario=None, **kwargs):
         super().__init__(*args, **kwargs)
         if usuario is not None:
-            self.fields['item_ofertado'].queryset = Item.objects.filter(dono=usuario, status=Item.Status.DISPONIVEL)
+            self.fields['item_ofertado'].queryset = Item.objects.filter(dono=usuario, status=Item.Status.DISPONIVEL, moderacao=Item.Moderacao.APROVADO)
 
 
 class AvaliacaoForm(forms.ModelForm):

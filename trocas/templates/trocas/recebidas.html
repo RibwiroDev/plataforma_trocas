@@ -1,14 +1,18 @@
 {% extends 'base.html' %}
 {% block title %}Propostas recebidas{% endblock %}
 {% block content %}
+<nav class="swap-switch" aria-label="Caixas de propostas">
+    <a href="{% url 'propostas_recebidas' %}" aria-current="page">Recebidas</a>
+    <a href="{% url 'minhas_propostas' %}" >Enviadas</a>
+</nav>
 <h2>Propostas recebidas</h2>
 {% if propostas %}
 <div class="proposal-list">
     {% for proposta in propostas %}
     <div class="proposal-card">
         <div class="proposal-info">
-            <p><strong>{{ proposta.proponente.username }}</strong> quer seu item <strong>{{ proposta.item_desejado.titulo }}</strong></p>
-            <p class="proposal-detail">Oferece: {{ proposta.item_ofertado.titulo }}</p>
+            <p><strong>{{ proposta.proponente.username }}</strong> quer seu item <strong>{{ proposta.item_desejado.titulo_publico }}</strong></p>
+            <p class="proposal-detail">Oferece: {{ proposta.item_ofertado.titulo_publico }}</p>
             {% if proposta.mensagem %}<p class="proposal-detail">"{{ proposta.mensagem }}"</p>{% endif %}
             <span class="item-status">{{ proposta.get_status_display }}</span>
             <p class="proposal-detail">

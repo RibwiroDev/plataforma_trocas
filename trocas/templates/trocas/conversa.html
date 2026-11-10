@@ -4,7 +4,7 @@
 <div class="chat-page">
     <div class="chat-header">
         <h2>Conversa com {{ outro_usuario.username }}</h2>
-        <p class="subtitle">{{ proposta.item_desejado.titulo }} ↔ {{ proposta.item_ofertado.titulo }}</p>
+        <p class="subtitle">{{ proposta.item_desejado.titulo_publico }} ↔ {{ proposta.item_ofertado.titulo_publico }}</p>
     </div>
 
     <div class="chat-window" id="chat-window" data-conversa-url="{% url 'mensagens_novas' proposta.pk %}" data-ultima-id="{{ ultima_mensagem_id }}">

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" role="img" aria-label="SWAP">
+  <defs><linearGradient id="swap-gradient" x2="1" y2="1"><stop stop-color="#B9E1F8"/><stop offset=".55" stop-color="#F6FBFF"/><stop offset="1" stop-color="#EAD6B3"/></linearGradient></defs>
+  <rect width="108" height="108" rx="25" fill="url(#swap-gradient)"/>
+  <g fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M28 42h48m-11-11 11 11-11 11" stroke="#215B7C"/>
+    <path d="M80 66H32m11-11L32 66l11 11" stroke="#9A6F37"/>
+  </g>
+</svg>

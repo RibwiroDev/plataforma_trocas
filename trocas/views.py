@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Avg, Count, Exists, OuterRef, Q
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from catalogo.models import Item
@@ -13,7 +13,7 @@ from .models import Avaliacao, Mensagem, Proposta
 @login_required
 def propor_troca(request, item_pk):
     item_desejado = get_object_or_404(
-        Item, pk=item_pk, status__in=[Item.Status.DISPONIVEL, Item.Status.EM_NEGOCIACAO]
+        Item, pk=item_pk, moderacao=Item.Moderacao.APROVADO, status__in=[Item.Status.DISPONIVEL, Item.Status.EM_NEGOCIACAO]
     )
 
     if item_desejado.dono_id == request.user.id:
@@ -27,6 +27,7 @@ def propor_troca(request, item_pk):
                 proposta = form.save(commit=False)
                 proposta.item_desejado = item_desejado
                 proposta.proponente = request.user
+                _verificar_itens_aprovados(proposta)
                 proposta.save()
 
                 if item_desejado.status == Item.Status.DISPONIVEL:
@@ -79,6 +80,7 @@ def aceitar_proposta(request, pk):
     )
     if request.method == 'POST':
         with transaction.atomic():
+            _verificar_itens_aprovados(proposta)
             proposta.status = Proposta.Status.ACEITA
             proposta.save()
 
@@ -226,3 +228,11 @@ def mensagens_novas(request, pk):
         for m in novas
     ]
     return JsonResponse({'mensagens': dados})
+
+
+def _verificar_itens_aprovados(proposta):
+    itens = Item.objects.select_for_update().filter(
+        pk__in=[proposta.item_desejado_id, proposta.item_ofertado_id],
+    ).order_by('pk')
+    if sum(item.moderacao == Item.Moderacao.APROVADO for item in itens) != 2:
+        raise Http404
