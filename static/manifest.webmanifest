@@ -1,0 +1,23 @@
+{
+  "id": "/",
+  "name": "SWAP",
+  "short_name": "SWAP",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F6FBFF",
+  "theme_color": "#CCE8FA",
+  "icons": [
+    {
+      "src": "img/swap-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/swap-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
