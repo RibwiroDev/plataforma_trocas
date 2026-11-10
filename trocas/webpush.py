@@ -115,7 +115,7 @@ def notificar(destinatarios, titulo, texto, url):
                 with SemRedirecionamento() as session:
                     webpush(
                         subscription_info=assinatura, data=carga, vapid_private_key=chave,
-                        vapid_claims={'sub': 'https://plataforma-trocas.vercel.app/'},
+                        vapid_claims={'sub': 'https://plataforma-trocas.vercel.app'},
                         ttl=1800, timeout=4, requests_session=session,
                     )
             except WebPushException as error:
