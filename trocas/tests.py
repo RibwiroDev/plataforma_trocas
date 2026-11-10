@@ -11,8 +11,8 @@ class TrocasTestsBase(TestCase):
         self.categoria = Categoria.objects.create(nome='Categoria Teste')
         self.ana = Usuario.objects.create_user(username='ana', password='Senha123!')
         self.bruno = Usuario.objects.create_user(username='bruno', password='Senha123!')
-        self.item_ana = Item.objects.create(dono=self.ana, titulo='Item Ana', descricao='x', categoria=self.categoria)
-        self.item_bruno = Item.objects.create(dono=self.bruno, titulo='Item Bruno', descricao='x', categoria=self.categoria)
+        self.item_ana = Item.objects.create(moderacao=Item.Moderacao.APROVADO, dono=self.ana, titulo='Item Ana', descricao='x', categoria=self.categoria)
+        self.item_bruno = Item.objects.create(moderacao=Item.Moderacao.APROVADO, dono=self.bruno, titulo='Item Bruno', descricao='x', categoria=self.categoria)
 
     def propor(self, usuario_cliente, item_desejado, item_ofertado, mensagem='quero trocar'):
         return usuario_cliente.post(reverse('propor_troca', args=[item_desejado.pk]), {
@@ -40,7 +40,7 @@ class PropostaTests(TrocasTestsBase):
 
     def test_propostas_concorrentes_so_libera_item_quando_todas_resolvidas(self):
         carla = Usuario.objects.create_user(username='carla', password='Senha123!')
-        item_carla = Item.objects.create(dono=carla, titulo='Item Carla', descricao='x', categoria=self.categoria)
+        item_carla = Item.objects.create(moderacao=Item.Moderacao.APROVADO, dono=carla, titulo='Item Carla', descricao='x', categoria=self.categoria)
 
         self.client.login(username='bruno', password='Senha123!')
         self.propor(self.client, self.item_ana, self.item_bruno)
@@ -87,7 +87,7 @@ class AceitarPropostaTests(TrocasTestsBase):
 
     def test_aceitar_recusa_automaticamente_outras_propostas_conflitantes(self):
         carla = Usuario.objects.create_user(username='carla', password='Senha123!')
-        item_carla = Item.objects.create(dono=carla, titulo='Item Carla', descricao='x', categoria=self.categoria)
+        item_carla = Item.objects.create(moderacao=Item.Moderacao.APROVADO, dono=carla, titulo='Item Carla', descricao='x', categoria=self.categoria)
         self.client.login(username='carla', password='Senha123!')
         self.propor(self.client, self.item_ana, item_carla)
         proposta_carla = Proposta.objects.get(proponente=carla)
@@ -201,7 +201,7 @@ class ChatTests(TrocasTestsBase):
 class StatusPresoTests(TrocasTestsBase):
     def test_item_oferecido_em_duas_propostas_nao_deixa_o_outro_preso(self):
         carla = Usuario.objects.create_user(username='carla', password='Senha123!')
-        item_carla = Item.objects.create(dono=carla, titulo='Item Carla', descricao='x', categoria=self.categoria)
+        item_carla = Item.objects.create(moderacao=Item.Moderacao.APROVADO, dono=carla, titulo='Item Carla', descricao='x', categoria=self.categoria)
 
         self.client.login(username='bruno', password='Senha123!')
         self.propor(self.client, self.item_ana, self.item_bruno)

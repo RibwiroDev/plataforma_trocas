@@ -1,22 +1,23 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}{{ titulo_pagina }}{% endblock %}
 {% block content %}
 <div class="page-shell">
     <div class="profile-card" style="max-width: 640px; width: 100%;">
         <h2>{{ titulo_pagina }}</h2>
-        <form method="post" enctype="multipart/form-data" class="styled-form">
+        <form method="post" enctype="multipart/form-data" class="styled-form"{% if not item %} data-sugestao-url="{% url 'sugerir_descricao' %}"{% endif %}>
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="btn btn-primary">Salvar</button>
         </form>
 
         {% if item and item.imagens.all %}
-        <div class="existing-images">
-            <h4>Fotos atuais</h4>
+        <section id="fotos-enviadas" class="existing-images" aria-labelledby="titulo-fotos-enviadas">
+            <h4 id="titulo-fotos-enviadas">Fotos enviadas</h4>
             <div class="existing-images-grid">
                 {% for imagem in item.imagens.all %}
                     <div class="existing-image{% if imagem.principal %} is-principal{% endif %}">
-                        <img src="{{ imagem.imagem.url }}" alt="Foto de {{ item.titulo }}">
+                        <img src="{% url 'foto_item' imagem.pk %}" alt="Foto de {{ item.titulo }}">
                         {% if imagem.principal %}<span class="badge-principal">Principal</span>{% endif %}
                         <div class="existing-image-actions">
                             {% if not imagem.principal %}
@@ -25,16 +26,18 @@
                                 <button type="submit" class="btn-link-sm">Tornar principal</button>
                             </form>
                             {% endif %}
-                            <form method="post" action="{% url 'remover_imagem' imagem.pk %}">
+                            <form method="post" action="{% url 'remover_imagem' imagem.pk %}" data-swap-remove-photo>
                                 {% csrf_token %}
-                                <button type="submit" class="btn-link-sm btn-link-danger">Remover</button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm swap-remove-photo">Excluir foto</button>
                             </form>
                         </div>
                     </div>
                 {% endfor %}
             </div>
-        </div>
+        </section>
         {% endif %}
     </div>
 </div>
+{{ form.media }}
+{% if not item %}<script src="{% static 'js/descricao.js' %}" defer></script>{% endif %}
 {% endblock %}

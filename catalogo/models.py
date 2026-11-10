@@ -23,6 +23,13 @@ class Item(models.Model):
         EM_NEGOCIACAO = 'em_negociacao', 'Em negociação'
         TROCADO = 'trocado', 'Trocado'
 
+    class Moderacao(models.TextChoices):
+        PENDENTE = 'pendente', 'Pendente'
+        APROVADO = 'aprovado', 'Aprovado'
+        REPROVADO = 'reprovado', 'Reprovado'
+
+    moderacao = models.CharField(max_length=10, choices=Moderacao.choices, default=Moderacao.PENDENTE, db_index=True)
+    motivo_moderacao = models.TextField(blank=True)
     dono = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='itens')
     titulo = models.CharField(max_length=120)
     descricao = models.TextField()
@@ -31,11 +38,24 @@ class Item(models.Model):
     status = models.CharField(max_length=15, choices=Status.choices, default=Status.DISPONIVEL)
     aceita_categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True, related_name='desejado_por_itens')
     aceita_descricao_livre = models.CharField(max_length=200, blank=True)
+    estado = models.CharField(max_length=2, blank=True)
+    cidade = models.CharField(max_length=100, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.titulo
+
+    class Meta:
+        permissions = [('moderar_item', 'Pode moderar anúncios')]
+
+    @property
+    def revisao_moderacao(self):
+        return self.atualizado_em.isoformat()
+
+    @property
+    def titulo_publico(self):
+        return self.titulo if self.moderacao == self.Moderacao.APROVADO else 'Anúncio indisponível'
 
     @property
     def imagem_principal(self):
@@ -55,6 +75,8 @@ class ItemImagem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='imagens')
     imagem = models.ImageField(upload_to='itens/')
     principal = models.BooleanField(default=False)
+    conteudo_privado = models.BinaryField(null=True, editable=False)
+    tipo_imagem = models.CharField(max_length=20, blank=True, editable=False)
 
     def __str__(self):
         return f"Imagem de {self.item.titulo}"

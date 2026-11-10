@@ -31,7 +31,8 @@
                 <div class="items-grid">
                     {% for item in itens %}
                         <div class="item-card">
-                            <h4>{{ item.titulo }}</h4>
+                            <h4><a href="{% url 'detalhe_item' item.pk %}">{{ item.titulo }}</a></h4>
+                            <p>{{ item.get_moderacao_display }}{% if item.motivo_moderacao %} · {{ item.motivo_moderacao }}{% endif %}</p>
                             <span class="item-status">{{ item.get_status_display }}</span>
                         </div>
                     {% endfor %}
@@ -42,4 +43,5 @@
         </div>
     </div>
 </div>
+{{ form.media }}
 {% endblock %}
