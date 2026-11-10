@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from catalogo.models import Item
 from .forms import AvaliacaoForm, MensagemForm, PropostaForm
 from .models import Avaliacao, Mensagem, Proposta
+from .webpush import notificar
 
 
 @login_required
@@ -29,6 +30,7 @@ def propor_troca(request, item_pk):
                 proposta.proponente = request.user
                 _verificar_itens_aprovados(proposta)
                 proposta.save()
+                notificar([item_desejado.dono_id], 'Nova proposta', 'Você recebeu uma proposta de troca.', '/propostas/recebidas/')
 
                 if item_desejado.status == Item.Status.DISPONIVEL:
                     item_desejado.status = Item.Status.EM_NEGOCIACAO
@@ -187,6 +189,9 @@ def conversa(request, pk):
         form = MensagemForm(request.POST)
         if form.is_valid():
             Mensagem.objects.create(proposta=proposta, remetente=request.user, texto=form.cleaned_data['texto'])
+            dono = proposta.item_desejado.dono_id
+            destinatario = proposta.proponente_id if request.user.pk == dono else dono
+            notificar([destinatario], 'Nova mensagem', 'Você recebeu uma mensagem no SWAP.', f'/propostas/{proposta.pk}/mensagens/')
             return redirect('conversa', pk=proposta.pk)
     else:
         form = MensagemForm()
