@@ -30,13 +30,17 @@
     <link rel="icon" href="{% static 'img/swap.svg' %}" type="image/svg+xml">
     <link href="{% static 'css/mobile.css' %}" rel="stylesheet">
     <style>
-        html { color-scheme: light; background: #E9F6FE; }
+        html { color-scheme: light; background: #fff; }
         #swap-launch { display: none; }
         .swap-launching #swap-launch {
             display: grid; position: fixed; inset: 0; z-index: 30;
-            place-items: center; background: #E9F6FE;
+            place-items: center; background: #fff;
         }
-        #swap-launch img { width: 100px; height: 100px; }
+        #swap-launch svg { width: 108px; height: 108px; }
+        #swap-launch path { animation: swap-arrow .65s ease-in-out infinite alternate; }
+        #swap-launch path:last-child { animation-direction: alternate-reverse; }
+        @keyframes swap-arrow { from { transform: translateX(-5px); } to { transform: translateX(5px); } }
+        @media (prefers-reduced-motion: reduce) { #swap-launch path { animation: none; } }
     </style>
     <script>
         if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
@@ -51,7 +55,10 @@
 </head>
 <body>
     <div id="swap-launch" aria-hidden="true">
-        <img src="{% static 'img/swap-180.png' %}" alt="" width="100" height="100">
+        <svg viewBox="0 0 108 108" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M26 42h51m-12-12 12 12-12 12" stroke="#215B7C"/>
+            <path d="M82 66H31m12-12L31 66l12 12" stroke="#9A6F37"/>
+        </svg>
     </div>
     <header class="swap-top">
         <div class="container swap-top-inner">
