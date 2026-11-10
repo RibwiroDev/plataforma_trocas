@@ -5,12 +5,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}SWAP{% endblock %}</title>
+    <meta name="theme-color" content="#CCE8FA">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="SWAP">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{% static 'img/splash/iphone-640x1136.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{% static 'img/splash/iphone-750x1334.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1242x2208.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1125x2436.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{% static 'img/splash/iphone-828x1792.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1242x2688.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1080x2340.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1170x2532.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1179x2556.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1206x2622.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1284x2778.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1290x2796.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1320x2868.png' %}">
+    <link rel="apple-touch-startup-image" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{% static 'img/splash/iphone-1260x2736.png' %}">
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/swap-180.png' %}">
     <link href="{% static 'vendor/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link rel="icon" href="{% static 'img/swap.svg' %}" type="image/svg+xml">
     <link href="{% static 'css/mobile.css' %}" rel="stylesheet">
+    <style>
+        html { color-scheme: light; background: #fff; }
+        #swap-launch { display: none; }
+        .swap-launching #swap-launch {
+            display: grid; position: fixed; inset: 0; z-index: 30;
+            place-items: center; background: #fff;
+        }
+        #swap-launch svg { width: 108px; height: 108px; }
+        #swap-launch path { animation: swap-arrow .65s ease-in-out infinite alternate; }
+        #swap-launch path:last-child { animation-direction: alternate-reverse; }
+        @keyframes swap-arrow { from { transform: translateX(-5px); } to { transform: translateX(5px); } }
+        @media (prefers-reduced-motion: reduce) { #swap-launch path { animation: none; } }
+    </style>
+    <script>
+        if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+            const root = document.documentElement;
+            root.classList.add('swap-launching');
+            const finish = () => root.classList.remove('swap-launching');
+            window.addEventListener('load', finish, {once:true});
+            window.addEventListener('pageshow', finish, {once:true});
+            window.setTimeout(finish, 4000);
+        }
+    </script>
 </head>
 <body>
+    <div id="swap-launch" aria-hidden="true">
+        <svg viewBox="0 0 108 108" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M26 42h51m-12-12 12 12-12 12" stroke="#215B7C"/>
+            <path d="M82 66H31m12-12L31 66l12 12" stroke="#9A6F37"/>
+        </svg>
+    </div>
     <header class="swap-top">
         <div class="container swap-top-inner">
             <a class="swap-brand" href="{% url 'lista_itens' %}" aria-label="SWAP, início">
