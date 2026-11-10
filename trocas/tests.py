@@ -271,3 +271,29 @@ class NotificacoesTests(TrocasTestsBase):
         self.assertEqual(self.client.get(reverse('resumo_avisos')).json(), {'mensagens': 1, 'avisos': 1})
         self.client.get(reverse('conversa', args=[proposta.pk]))
         self.assertEqual(self.client.get(reverse('resumo_avisos')).json(), {'mensagens': 0, 'avisos': 0})
+
+class WebPushTests(TrocasTestsBase):
+    def test_registra_dispositivo_e_para_de_enviar_apos_logout(self):
+        import json
+        from unittest.mock import patch
+        from .webpush import notificar
+
+        url = reverse('registrar_push')
+        dados = {
+            'endpoint': 'https://fcm.googleapis.com/fcm/send/teste',
+            'keys': {'p256dh': 'A' * 87, 'auth': 'B' * 22},
+        }
+        self.assertEqual(self.client.post(url, json.dumps(dados), content_type='application/json').status_code, 401)
+        self.client.force_login(self.ana)
+        with patch.dict('os.environ', {'SWAP_VAPID_PRIVATE': 'chave-de-teste'}):
+            fora = {**dados, 'endpoint': 'https://127.0.0.1/privado'}
+            self.assertEqual(self.client.post(url, json.dumps(fora), content_type='application/json').status_code, 400)
+            self.assertEqual(self.client.post(url, json.dumps(dados), content_type='application/json').status_code, 200)
+            with patch('pywebpush.webpush') as enviar:
+                with self.captureOnCommitCallbacks(execute=True):
+                    notificar([self.ana.pk], 'Nova mensagem', 'Você recebeu uma mensagem.', '/mensagens/')
+                enviar.assert_called_once()
+                self.client.logout()
+                with self.captureOnCommitCallbacks(execute=True):
+                    notificar([self.ana.pk], 'Nova mensagem', 'Você recebeu uma mensagem.', '/mensagens/')
+                enviar.assert_called_once()
