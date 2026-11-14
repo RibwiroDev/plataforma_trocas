@@ -7,6 +7,8 @@ from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from trocas.webpush import avisar_item_aprovado
+
 from .models import Item, ItemImagem
 
 
@@ -52,5 +54,7 @@ def decidir_moderacao(request, pk):
                 item.moderacao = decisao
                 item.motivo_moderacao = motivo if decisao == Item.Moderacao.REPROVADO else ''
                 item.save(update_fields=['moderacao', 'motivo_moderacao', 'atualizado_em'])
+                if decisao == Item.Moderacao.APROVADO:
+                    avisar_item_aprovado(item)
                 messages.success(request, f'Anúncio {item.get_moderacao_display().lower()}.')
     return redirect('fila_moderacao')

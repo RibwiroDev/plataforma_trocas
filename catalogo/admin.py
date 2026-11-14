@@ -1,8 +1,11 @@
 from django import forms
 from django.contrib import admin
+from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
+
+from trocas.webpush import avisar_item_aprovado
 
 from .models import Categoria, Item, ItemImagem
 
@@ -49,10 +52,18 @@ class ItemAdmin(admin.ModelAdmin):
 
     @admin.action(description='Aprovar anúncios pendentes selecionados', permissions=['change'])
     def aprovar_anuncios(self, request, queryset):
-        total = queryset.filter(moderacao=Item.Moderacao.PENDENTE).update(
-            moderacao=Item.Moderacao.APROVADO, motivo_moderacao='', atualizado_em=timezone.now()
-        )
+        with transaction.atomic():
+            pendentes = queryset.filter(moderacao=Item.Moderacao.PENDENTE)
+            itens = list(pendentes.select_for_update().order_by('pk'))
+            total = pendentes.update(moderacao=Item.Moderacao.APROVADO, motivo_moderacao='', atualizado_em=timezone.now())
+            for item in itens:
+                avisar_item_aprovado(item)
         self.message_user(request, f'{total} anúncio(s) aprovado(s).')
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if obj.moderacao == Item.Moderacao.APROVADO and 'moderacao' in form.changed_data:
+            avisar_item_aprovado(obj)
 
 
 admin.site.register(Categoria)

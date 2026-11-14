@@ -1,4 +1,5 @@
 from datetime import timedelta
+from hashlib import sha256
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -55,6 +56,7 @@ def central_avisos(request):
     conversas = conversas_do(request.user).filter(nao_lidas__gt=0)
     return render(request, 'trocas/notificacoes.html', {
         'conversas': conversas[:12], 'propostas': propostas[:12], 'proximos': proximos[:12],
+        'chave_dispositivo': sha256(request.session.session_key.encode()).hexdigest(),
     })
 
 

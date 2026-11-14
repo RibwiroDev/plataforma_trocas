@@ -57,3 +57,9 @@ class Mensagem(models.Model):
 
     def __str__(self):
         return f"{self.remetente}: {self.texto[:30]}"
+
+class AssinaturaPush(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    sessao = models.CharField(max_length=40, db_index=True)
+    identificador = models.CharField(max_length=64, unique=True)
+    assinatura = models.JSONField()
