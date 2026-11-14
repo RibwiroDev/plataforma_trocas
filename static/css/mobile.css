@@ -87,3 +87,16 @@ body { min-height: 100vh; background: linear-gradient(155deg, #edf7ff, #f9fcff 6
 .swap-pending-photos img { width: 42px; height: 42px; object-fit: cover; border-radius: 6px; }
 .swap-pending-photos span { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: .84rem; }
 .swap-pending-photos button { min-height: 40px; }
+
+.swap-top-actions { display: flex; align-items: center; gap: .35rem; }
+.swap-bell { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: var(--color-ink); background: #e1eff9; }
+.swap-dock .swap-inbox-tab { position: relative; }
+.swap-badge, .swap-dock .swap-badge { position: absolute; top: 0; right: 3px; min-width: 17px; padding: 2px 3px; border-radius: 20px; background: #ad3548; color: #fff; font-size: 10px; text-align: center; line-height: 1.2; }
+.swap-badge[hidden] { display: none; }
+.swap-conversations, .swap-alert-section { display: grid; gap: 8px; margin-bottom: 1.25rem; }
+.swap-alert-section h2 { font-size: 1.15rem; margin: 0; }
+.swap-conversation { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: .8rem; border: 1px solid var(--color-border); border-radius: 14px; color: var(--color-ink); background: #fff; text-decoration: none; overflow-wrap: anywhere; }
+.swap-conversation p { margin: 0; }
+.swap-conversation small { color: var(--color-ink-soft); }
+.swap-unread { flex: none; border-radius: 20px; padding: 2px 8px; background: #e1eff9; color: #174761; font-weight: 700; }
+@media (max-width: 380px) { .swap-top-actions .swap-account { padding-inline: 8px; font-size: .76rem; } .swap-dock a { font-size: .68rem; } }

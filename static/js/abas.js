@@ -1,7 +1,7 @@
 (() => {
     if (window.swapFastTabs) return;
     window.swapFastTabs = true;
-    const rotas = new Set(['/', '/itens/novo/', '/propostas/recebidas/', '/propostas/enviadas/', '/perfil/']);
+    const rotas = new Set(['/', '/itens/novo/', '/propostas/recebidas/', '/propostas/enviadas/', '/mensagens/', '/perfil/']);
     const scripts = new Set(['/static/js/descricao.js', '/static/contas/localidades.js']);
     let pendente;
     let progresso;
@@ -60,6 +60,7 @@
             document.title = pagina.title;
             conteudo.replaceChildren(...novoConteudo.childNodes);
             document.querySelector('.swap-dock').replaceWith(novoMenu);
+            window.dispatchEvent(new Event('swap:tab'));
             window.scrollTo(0, 0);
             addSubmitLoadingState();
             addAvatarPreview();

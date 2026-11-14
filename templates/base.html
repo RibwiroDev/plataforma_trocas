@@ -66,12 +66,18 @@
                 <img class="swap-mark" src="{% static 'img/swap.svg' %}" alt="" width="39" height="39"> SWAP
             </a>
             {% if user.is_authenticated %}
+                <div class="swap-top-actions">
+                <a class="swap-bell" href="{% url 'central_avisos' %}" aria-label="Notificações" data-resumo="{% url 'resumo_avisos' %}">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+                    <span class="swap-badge" data-count="avisos" hidden></span>
+                </a>
                 {% if user.is_staff and perms.catalogo.moderar_item %}
                     <a class="swap-account" href="{% url 'fila_moderacao' %}">Administração</a>
                 {% endif %}
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}<button class="swap-account" type="submit">Sair</button>
                 </form>
+                </div>
             {% else %}
                 <a class="swap-account" href="{% url 'login' %}">Entrar</a>
             {% endif %}
@@ -85,6 +91,7 @@
             {% if user.is_authenticated %}
                 <a href="{% url 'criar_item' %}" {% if route == 'criar_item' %}aria-current="page"{% endif %}><span aria-hidden="true">＋</span> Publicar</a>
                 <a href="{% url 'propostas_recebidas' %}" {% if route == 'propostas_recebidas' or route == 'minhas_propostas' %}aria-current="page"{% endif %}><span aria-hidden="true">⇄</span> Trocas</a>
+                <a class="swap-inbox-tab" href="{% url 'caixa_mensagens' %}" {% if route == 'caixa_mensagens' or route == 'conversa' %}aria-current="page"{% endif %}><span aria-hidden="true">▤</span> Mensagens<span class="swap-badge" data-count="mensagens" hidden></span></a>
                 <a href="{% url 'perfil' %}" {% if route == 'perfil' %}aria-current="page"{% endif %}><span aria-hidden="true">○</span> Perfil</a>
             {% else %}
                 <a href="{% url 'cadastro' %}" {% if route == 'cadastro' %}aria-current="page"{% endif %}><span aria-hidden="true">＋</span> Criar conta</a>
@@ -102,5 +109,6 @@
     <script src="{% static 'js/main.js' %}" defer></script>
     <script src="{% static 'js/abas.js' %}" defer></script>
     <script src="{% static 'js/fotos.js' %}" defer></script>
+    {% if user.is_authenticated %}<script src="{% static 'js/avisos.js' %}" defer></script>{% endif %}
 </body>
 </html>

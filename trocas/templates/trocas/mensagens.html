@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Mensagens{% endblock %}
+{% block content %}
+<h1>Mensagens</h1>
+<div class="swap-conversations">
+    {% for conversa in pagina %}
+        <a class="swap-conversation" href="{% url 'conversa' conversa.pk %}">
+            <div>
+                <strong>{% if conversa.proponente_id == user.pk %}{{ conversa.item_desejado.dono.username }}{% else %}{{ conversa.proponente.username }}{% endif %}</strong>
+                <p>{{ conversa.item_desejado.titulo_publico }}</p>
+                <small>{{ conversa.ultimo_texto|default:"Abrir conversa"|truncatechars:75 }}</small>
+            </div>
+            {% if conversa.nao_lidas %}<span class="swap-unread">{{ conversa.nao_lidas }}</span>{% endif %}
+        </a>
+    {% empty %}
+        <p>As conversas das suas propostas aparecerão aqui.</p>
+    {% endfor %}
+</div>
+{% if pagina.has_other_pages %}
+<nav class="swap-switch mt-3" aria-label="Páginas de mensagens">
+    {% if pagina.has_previous %}<a href="?page={{ pagina.previous_page_number }}">Anterior</a>{% endif %}
+    {% if pagina.has_next %}<a href="?page={{ pagina.next_page_number }}">Próxima</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

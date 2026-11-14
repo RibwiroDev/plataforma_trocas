@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 
 from .models import Categoria, Item, ItemImagem
@@ -49,7 +50,7 @@ class ItemAdmin(admin.ModelAdmin):
     @admin.action(description='Aprovar anúncios pendentes selecionados', permissions=['change'])
     def aprovar_anuncios(self, request, queryset):
         total = queryset.filter(moderacao=Item.Moderacao.PENDENTE).update(
-            moderacao=Item.Moderacao.APROVADO, motivo_moderacao=''
+            moderacao=Item.Moderacao.APROVADO, motivo_moderacao='', atualizado_em=timezone.now()
         )
         self.message_user(request, f'{total} anúncio(s) aprovado(s).')
 
