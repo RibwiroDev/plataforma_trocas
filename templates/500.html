@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Erro no servidor</title>
+    <link href="{% static 'vendor/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/mobile.css' %}" rel="stylesheet">
+</head>
+<body>
+    {# Não herda de base.html: o erro pode ter vindo do banco, e esta página não pode depender dele. #}
+    <main class="container swap-content">
+        <section class="swap-empty">
+            <span class="swap-mark" aria-hidden="true">⇄</span>
+            <h3>Algo deu errado</h3>
+            <p>Não foi possível concluir o pedido. Tente novamente em alguns instantes.</p>
+            <a href="/">Voltar para os itens</a>
+        </section>
+    </main>
+</body>
+</html>

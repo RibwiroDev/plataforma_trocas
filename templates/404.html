@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Página não encontrada{% endblock %}
+{% block content %}
+<section class="swap-empty">
+    <span class="swap-mark" aria-hidden="true">⇄</span>
+    <h3>Página não encontrada</h3>
+    <p>O endereço não existe ou o anúncio não está mais disponível.</p>
+    <a href="{% url 'lista_itens' %}">Voltar para os itens</a>
+</section>
+{% endblock %}
