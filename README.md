@@ -13,6 +13,7 @@ com o outro lado da negociação e avalia a troca depois de concluída.
 - **Propostas de troca** — propor, aceitar, recusar e cancelar. O item fica *disponível → em negociação → trocado* automaticamente.
 - **Avaliações** — após uma troca aceita, cada lado avalia o outro (1 a 5 + comentário); a reputação média é recalculada.
 - **Chat** — conversa por proposta, com atualização automática a cada 4 s e contador de mensagens não lidas.
+- **Mensagens e avisos** — caixa de conversas (`/mensagens/`) e central de avisos (`/notificacoes/`). As notificações push são opcionais: só funcionam com as variáveis `SWAP_VAPID_PUBLIC` e `SWAP_VAPID_PRIVATE` configuradas.
 
 ## Tecnologias
 
@@ -47,7 +48,7 @@ Copie `.env.example` para `.env` e preencha (banco, `SECRET_KEY`, Cloudinary).
 
 **4. Criar as tabelas** — escolha uma das opções:
 
-- **A)** `python manage.py migrate` — cria as 16 tabelas e as 9 categorias iniciais.
+- **A)** `python manage.py migrate` — cria as 17 tabelas e as 9 categorias iniciais.
 - **B)** `mysql -u USUARIO -p swap < script_banco.sql` — mesmo resultado, direto em SQL.
   O script já registra as migrations como aplicadas, então rodar `migrate` depois não recria nada.
 
@@ -105,19 +106,20 @@ catalogo/   categorias, itens, fotos, moderação
 trocas/     propostas, avaliações, mensagens (chat)
 templates/  base.html compartilhado e páginas de erro (404 e 500)
 static/     CSS, JavaScript e Bootstrap local
-script_banco.sql   DDL completo (16 tabelas) + dados iniciais
+script_banco.sql   DDL completo (17 tabelas) + dados iniciais
 ```
 
 ## Banco de dados
 
-16 tabelas: 4 do domínio principal (`contas_usuario`, `catalogo_categoria`, `catalogo_item`,
-`catalogo_itemimagem`), 3 do fluxo de troca (`trocas_proposta`, `trocas_avaliacao`,
-`trocas_mensagem`) e as demais, internas do Django (autenticação, sessões, admin).
+17 tabelas: 4 do domínio principal (`contas_usuario`, `catalogo_categoria`, `catalogo_item`,
+`catalogo_itemimagem`), 4 do fluxo de troca (`trocas_proposta`, `trocas_avaliacao`,
+`trocas_mensagem`, `trocas_assinaturapush`) e as demais, internas do Django (autenticação, sessões, admin).
 
 `catalogo_item` guarda a situação da moderação (`moderacao`, `motivo_moderacao`) e a localidade do
 anúncio (`estado`, `cidade`); `catalogo_itemimagem` guarda a foto no próprio banco
 (`conteudo_privado`, `tipo_imagem`), para que só veja a foto quem pode ver o anúncio.
-Num banco que já existe, rode `python manage.py migrate` para criar essas colunas.
+`trocas_assinaturapush` guarda os aparelhos que aceitaram receber notificações push.
+Num banco que já existe, rode `python manage.py migrate` para criar essas colunas e a tabela nova.
 
 ## Publicação na Vercel (opcional)
 

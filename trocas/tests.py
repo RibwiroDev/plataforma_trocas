@@ -263,3 +263,62 @@ class PaginacaoEPaginasDeErroTests(TrocasTestsBase):
     def test_pagina_500_renderiza_sem_contexto(self):
         from django.template.loader import render_to_string
         self.assertIn('Algo deu errado', render_to_string('500.html'))
+
+
+class NotificacoesTests(TrocasTestsBase):
+    def test_caixa_privada_e_contagem_por_regiao(self):
+        self.ana.estado, self.ana.cidade = 'AM', 'Manaus'
+        self.ana.save(update_fields=['estado', 'cidade'])
+        self.item_bruno.estado, self.item_bruno.cidade = 'AM', 'Manaus'
+        self.item_bruno.save(update_fields=['estado', 'cidade'])
+        proposta = Proposta.objects.create(item_desejado=self.item_ana, item_ofertado=self.item_bruno, proponente=self.bruno)
+        Mensagem.objects.create(proposta=proposta, remetente=self.bruno, texto='Posso trocar amanhã?')
+        Mensagem.objects.create(proposta=proposta, remetente=self.ana, texto='Vamos conversar.')
+        Item.objects.create(dono=self.bruno, titulo='Pendente em Manaus', estado='AM', cidade='Manaus')
+        Item.objects.create(
+            dono=self.bruno, titulo='Aprovado em São Paulo', estado='SP', cidade='São Paulo',
+            moderacao=Item.Moderacao.APROVADO,
+        )
+        self.assertEqual(self.client.get(reverse('resumo_avisos')).status_code, 401)
+        terceiro = Usuario.objects.create_user(username='terceiro')
+        self.client.force_login(terceiro)
+        self.assertNotContains(self.client.get(reverse('caixa_mensagens')), 'Vamos conversar.')
+        self.assertEqual(self.client.get(reverse('resumo_avisos')).json(), {'mensagens': 0, 'avisos': 0})
+
+        self.client.force_login(self.ana)
+        self.assertContains(self.client.get(reverse('caixa_mensagens')), 'Vamos conversar.')
+        central = self.client.get(reverse('central_avisos'))
+        self.assertContains(central, self.item_bruno.titulo)
+        self.assertNotContains(central, 'Pendente em Manaus')
+        self.assertNotContains(central, 'Aprovado em São Paulo')
+        self.assertEqual(self.client.get(reverse('resumo_avisos')).json(), {'mensagens': 1, 'avisos': 3})
+        self.client.post(reverse('marcar_avisos'))
+        self.assertEqual(self.client.get(reverse('resumo_avisos')).json(), {'mensagens': 1, 'avisos': 1})
+        self.client.get(reverse('conversa', args=[proposta.pk]))
+        self.assertEqual(self.client.get(reverse('resumo_avisos')).json(), {'mensagens': 0, 'avisos': 0})
+
+class WebPushTests(TrocasTestsBase):
+    def test_registra_dispositivo_e_para_de_enviar_apos_logout(self):
+        import json
+        from unittest.mock import patch
+        from .webpush import notificar
+
+        url = reverse('registrar_push')
+        dados = {
+            'endpoint': 'https://fcm.googleapis.com/fcm/send/teste',
+            'keys': {'p256dh': 'A' * 87, 'auth': 'B' * 22},
+        }
+        self.assertEqual(self.client.post(url, json.dumps(dados), content_type='application/json').status_code, 401)
+        self.client.force_login(self.ana)
+        with patch.dict('os.environ', {'SWAP_VAPID_PRIVATE': 'chave-de-teste'}):
+            fora = {**dados, 'endpoint': 'https://127.0.0.1/privado'}
+            self.assertEqual(self.client.post(url, json.dumps(fora), content_type='application/json').status_code, 400)
+            self.assertEqual(self.client.post(url, json.dumps(dados), content_type='application/json').status_code, 200)
+            with patch('pywebpush.webpush') as enviar:
+                with self.captureOnCommitCallbacks(execute=True):
+                    notificar([self.ana.pk], 'Nova mensagem', 'Você recebeu uma mensagem.', '/mensagens/')
+                enviar.assert_called_once()
+                self.client.logout()
+                with self.captureOnCommitCallbacks(execute=True):
+                    notificar([self.ana.pk], 'Nova mensagem', 'Você recebeu uma mensagem.', '/mensagens/')
+                enviar.assert_called_once()

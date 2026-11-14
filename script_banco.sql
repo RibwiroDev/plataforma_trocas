@@ -1,5 +1,5 @@
 -- ============================================================
--- SWAP — Script de criação do banco de dados (16 tabelas)
+-- SWAP — Script de criação do banco de dados (17 tabelas)
 -- ============================================================
 -- Gerado a partir das migrations reais do Django (contas, catalogo,
 -- trocas), aplicadas contra um MariaDB 10.11 limpo (motor compatível com
@@ -240,6 +240,19 @@ CREATE TABLE `trocas_mensagem` (
   CONSTRAINT `trocas_mensagem_remetente_id_4b2de8de_fk_contas_usuario_id` FOREIGN KEY (`remetente_id`) REFERENCES `contas_usuario` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE `trocas_assinaturapush` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `sessao` varchar(40) NOT NULL,
+  `identificador` varchar(64) NOT NULL,
+  `assinatura` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`assinatura`)),
+  `usuario_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `identificador` (`identificador`),
+  KEY `trocas_assinaturapush_usuario_id_b81d5270_fk_contas_usuario_id` (`usuario_id`),
+  KEY `trocas_assinaturapush_sessao_bfa74072` (`sessao`),
+  CONSTRAINT `trocas_assinaturapush_usuario_id_b81d5270_fk_contas_usuario_id` FOREIGN KEY (`usuario_id`) REFERENCES `contas_usuario` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- ------------------------------------------------------------
 -- Dados iniciais: categorias do catálogo e registro das migrations
 -- ------------------------------------------------------------
@@ -281,6 +294,7 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES (1,'cont
 (25,'sessions','0001_initial','2026-11-14 21:40:00.000000'),
 (26,'trocas','0001_initial','2026-11-14 21:40:00.000000'),
 (27,'trocas','0002_avaliacao','2026-11-14 21:40:00.000000'),
-(28,'trocas','0003_mensagem','2026-11-14 21:40:00.000000');
+(28,'trocas','0003_mensagem','2026-11-14 21:40:00.000000'),
+(29,'trocas','0004_assinatura_push','2026-11-14 21:40:00.000000');
 
 SET FOREIGN_KEY_CHECKS = 1;

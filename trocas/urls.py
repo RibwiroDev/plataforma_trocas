@@ -1,7 +1,14 @@
 from django.urls import path
-from . import views
+from . import notificacoes, views, webpush
 
 urlpatterns = [
+    path('swap-push-worker.js', webpush.push_worker, name='push_worker'),
+    path('notificacoes/push/chave/', webpush.chave_push, name='chave_push'),
+    path('notificacoes/push/registrar/', webpush.registrar_push, name='registrar_push'),
+    path('mensagens/', notificacoes.caixa_mensagens, name='caixa_mensagens'),
+    path('notificacoes/', notificacoes.central_avisos, name='central_avisos'),
+    path('notificacoes/resumo/', notificacoes.resumo_avisos, name='resumo_avisos'),
+    path('notificacoes/vistas/', notificacoes.marcar_avisos, name='marcar_avisos'),
     path('itens/<int:item_pk>/propor/', views.propor_troca, name='propor_troca'),
     path('propostas/recebidas/', views.propostas_recebidas, name='propostas_recebidas'),
     path('propostas/enviadas/', views.minhas_propostas, name='minhas_propostas'),
