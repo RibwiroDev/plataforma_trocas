@@ -161,10 +161,15 @@ CREATE TABLE `catalogo_item` (
   `aceita_categoria_id` bigint(20) DEFAULT NULL,
   `categoria_id` bigint(20) DEFAULT NULL,
   `dono_id` bigint(20) NOT NULL,
+  `cidade` varchar(100) NOT NULL,
+  `estado` varchar(2) NOT NULL,
+  `moderacao` varchar(10) NOT NULL,
+  `motivo_moderacao` longtext NOT NULL,
   PRIMARY KEY (`id`),
   KEY `catalogo_item_aceita_categoria_id_4447f3cc_fk_catalogo_` (`aceita_categoria_id`),
   KEY `catalogo_item_categoria_id_ffd330ba_fk_catalogo_categoria_id` (`categoria_id`),
   KEY `catalogo_item_dono_id_72b57386_fk_contas_usuario_id` (`dono_id`),
+  KEY `catalogo_item_moderacao_d4027a49` (`moderacao`),
   CONSTRAINT `catalogo_item_aceita_categoria_id_4447f3cc_fk_catalogo_` FOREIGN KEY (`aceita_categoria_id`) REFERENCES `catalogo_categoria` (`id`),
   CONSTRAINT `catalogo_item_categoria_id_ffd330ba_fk_catalogo_categoria_id` FOREIGN KEY (`categoria_id`) REFERENCES `catalogo_categoria` (`id`),
   CONSTRAINT `catalogo_item_dono_id_72b57386_fk_contas_usuario_id` FOREIGN KEY (`dono_id`) REFERENCES `contas_usuario` (`id`)
@@ -175,6 +180,8 @@ CREATE TABLE `catalogo_itemimagem` (
   `imagem` varchar(100) NOT NULL,
   `principal` tinyint(1) NOT NULL,
   `item_id` bigint(20) NOT NULL,
+  `conteudo_privado` longblob DEFAULT NULL,
+  `tipo_imagem` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `catalogo_itemimagem_item_id_613c6401_fk_catalogo_item_id` (`item_id`),
   CONSTRAINT `catalogo_itemimagem_item_id_613c6401_fk_catalogo_item_id` FOREIGN KEY (`item_id`) REFERENCES `catalogo_item` (`id`)
@@ -268,9 +275,12 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES (1,'cont
 (19,'catalogo','0001_initial','2026-10-26 21:31:33.881532'),
 (20,'catalogo','0002_initial','2026-10-26 21:31:33.903489'),
 (21,'catalogo','0003_seed_categorias','2026-10-26 21:31:33.917597'),
-(22,'sessions','0001_initial','2026-10-26 21:31:33.924245'),
-(23,'trocas','0001_initial','2026-10-26 21:31:33.948857'),
-(24,'trocas','0002_avaliacao','2026-10-26 21:31:33.979522'),
-(25,'trocas','0003_mensagem','2026-10-26 21:31:34.002469');
+(22,'catalogo','0004_localidade_item','2026-11-14 21:40:00.000000'),
+(23,'catalogo','0005_moderacao','2026-11-14 21:40:00.000000'),
+(24,'catalogo','0006_permissao_moderacao','2026-11-14 21:40:00.000000'),
+(25,'sessions','0001_initial','2026-11-14 21:40:00.000000'),
+(26,'trocas','0001_initial','2026-11-14 21:40:00.000000'),
+(27,'trocas','0002_avaliacao','2026-11-14 21:40:00.000000'),
+(28,'trocas','0003_mensagem','2026-11-14 21:40:00.000000');
 
 SET FOREIGN_KEY_CHECKS = 1;

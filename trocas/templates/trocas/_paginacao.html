@@ -1,0 +1,13 @@
+{% if propostas.has_other_pages %}
+<nav class="pagination-nav" aria-label="Páginas de propostas">
+    <ul class="pagination">
+        {% if propostas.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ propostas.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Página {{ propostas.number }} de {{ propostas.paginator.num_pages }}</span></li>
+        {% if propostas.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ propostas.next_page_number }}">Próxima</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}

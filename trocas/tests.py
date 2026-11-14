@@ -239,3 +239,27 @@ class ChatRobustezTests(TrocasTestsBase):
     def test_mensagem_acima_do_limite_e_rejeitada(self):
         self.client.post(reverse('conversa', args=[self.proposta.pk]), {'texto': 'a' * 5000})
         self.assertEqual(Mensagem.objects.count(), 0)
+
+
+class PaginacaoEPaginasDeErroTests(TrocasTestsBase):
+    def test_listas_de_propostas_sao_paginadas(self):
+        Proposta.objects.bulk_create(
+            Proposta(item_desejado=self.item_ana, item_ofertado=self.item_bruno, proponente=self.bruno)
+            for _ in range(13)
+        )
+        for usuario, rota in (('ana', 'propostas_recebidas'), ('bruno', 'minhas_propostas')):
+            self.client.login(username=usuario, password='Senha123!')
+            primeira = self.client.get(reverse(rota))
+            self.assertEqual(len(primeira.context['propostas']), 12)
+            self.assertContains(primeira, 'Página 1 de 2')
+            self.assertEqual(len(self.client.get(reverse(rota), {'page': 2}).context['propostas']), 1)
+            self.assertEqual(self.client.get(reverse(rota), {'page': 'abc'}).status_code, 200)
+
+    def test_endereco_inexistente_usa_pagina_404_do_site(self):
+        response = self.client.get('/nao-existe/')
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, '404.html')
+
+    def test_pagina_500_renderiza_sem_contexto(self):
+        from django.template.loader import render_to_string
+        self.assertIn('Algo deu errado', render_to_string('500.html'))

@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Avg, Count, Exists, OuterRef, Q
 from django.http import Http404, JsonResponse
@@ -56,7 +57,7 @@ def propostas_recebidas(request):
             'mensagens', filter=Q(mensagens__lida=False) & ~Q(mensagens__remetente=request.user), distinct=True
         ),
     )
-    return render(request, 'trocas/recebidas.html', {'propostas': propostas})
+    return render(request, 'trocas/recebidas.html', {'propostas': _paginar(request, propostas)})
 
 
 @login_required
@@ -70,7 +71,12 @@ def minhas_propostas(request):
             'mensagens', filter=Q(mensagens__lida=False) & ~Q(mensagens__remetente=request.user), distinct=True
         ),
     )
-    return render(request, 'trocas/enviadas.html', {'propostas': propostas})
+    return render(request, 'trocas/enviadas.html', {'propostas': _paginar(request, propostas)})
+
+
+def _paginar(request, propostas):
+    # A contagem de mensagens agrupa a consulta e descarta a ordem padrão do modelo.
+    return Paginator(propostas.order_by('-criado_em', '-pk'), 12).get_page(request.GET.get('page'))
 
 
 @login_required
